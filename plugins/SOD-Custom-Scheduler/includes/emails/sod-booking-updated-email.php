@@ -3,9 +3,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-if (!class_exists('SOD_Booking_Created_Email')) :
+if (!class_exists('SOD_Booking_Updated_Email')) :
 
-class SOD_Booking_Created_Email {
+class SOD_Booking_Updated_Email {
     private static $instance;
 
     public static function get_instance() {
@@ -24,15 +24,15 @@ class SOD_Booking_Created_Email {
             return;
         }
 
-        $this->id = 'sod_booking_created';
-        $this->title = __('Booking Created', 'spark-divine-service');
-        $this->description = __('This email is sent to the customer when a new booking is created.', 'spark-divine-service');
-        $this->template_html = 'emails/customer-booking-created.php';
-        $this->template_plain = 'emails/plain/customer-booking-created.php';
+        $this->id = 'sod_booking_updated';
+        $this->title = __('Booking Updated', 'spark-divine-service');
+        $this->description = __('This email is sent to the customer when a booking is updated.', 'spark-divine-service');
+        $this->template_html = 'emails/customer-booking-updated.php';
+        $this->template_plain = 'emails/plain/customer-booking-updated.php';
         $this->template_base = plugin_dir_path(__FILE__) . 'templates/';
     }
 
-    public function trigger($booking_id, $order_id = null) {
+    public function trigger($booking_id) {
         if (!class_exists('WC_Email')) {
             return;
         }
@@ -45,22 +45,19 @@ class SOD_Booking_Created_Email {
         $email->description = $this->description;
 
         $booking = get_post($booking_id);
-        $order = $order_id ? wc_get_order($order_id) : null;
-
         if (!$booking) {
             return;
         }
 
         $recipient = get_post_meta($booking_id, 'client_email', true);
 
-        $email->send($recipient, $this->get_subject($booking), $this->get_content($booking, $order), $this->get_headers(), $this->get_attachments());
+        $email->send($recipient, $this->get_subject($booking), $this->get_content($booking), $this->get_headers(), $this->get_attachments());
     }
 
-    public function get_content($booking, $order) {
+    public function get_content($booking) {
         ob_start();
         wc_get_template($this->template_html, array(
             'booking' => $booking,
-            'order' => $order,
             'email_heading' => $this->get_heading($booking),
             'sent_to_admin' => false,
             'plain_text' => false,
@@ -70,11 +67,11 @@ class SOD_Booking_Created_Email {
     }
 
     public function get_subject($booking) {
-        return sprintf(__('New booking #%s', 'spark-divine-service'), $booking->ID);
+        return sprintf(__('Your booking #%s has been updated', 'spark-divine-service'), $booking->ID);
     }
 
     public function get_heading($booking) {
-        return sprintf(__('New booking #%s', 'spark-divine-service'), $booking->ID);
+        return sprintf(__('Booking Update: #%s', 'spark-divine-service'), $booking->ID);
     }
 
     public function get_headers() {
@@ -88,4 +85,4 @@ class SOD_Booking_Created_Email {
 
 endif;
 
-return SOD_Booking_Created_Email::get_instance();
+return SOD_Booking_Updated_Email::get_instance();

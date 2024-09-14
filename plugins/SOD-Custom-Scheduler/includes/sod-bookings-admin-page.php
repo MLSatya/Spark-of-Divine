@@ -134,6 +134,31 @@ class SOD_Bookings_Admin_Page {
             wp_send_json_error(array('message' => 'Failed to update booking'));
         }
     }
+    public function staff_details_callback($post) {
+    wp_nonce_field('sod_staff_nonce_action', 'sod_staff_nonce');
+
+    // Render a dynamic form to add multiple availability slots
+    $availability_data = get_post_meta($post->ID, 'sod_staff_availability', true);
+
+    echo '<div id="availability-slots">';
+    if (!empty($availability_data)) {
+        foreach ($availability_data as $slot) {
+            echo '<div class="availability-slot">';
+            echo '<label>Day:</label>';
+            echo '<select name="availability_day[]">
+                    <option value="Monday"' . selected($slot['day'], 'Monday', false) . '>Monday</option>
+                    <!-- Add more days here -->
+                  </select>';
+            echo '<label>Start Time:</label>';
+            echo '<input type="time" name="availability_start[]" value="' . esc_attr($slot['start']) . '">';
+            echo '<label>End Time:</label>';
+            echo '<input type="time" name="availability_end[]" value="' . esc_attr($slot['end']) . '">';
+            echo '</div>';
+        }
+    }
+    echo '</div>';
+    echo '<button type="button" id="add-availability-slot">Add Slot</button>';
+ }
 }
 
 // Instantiate the admin page with the database access class

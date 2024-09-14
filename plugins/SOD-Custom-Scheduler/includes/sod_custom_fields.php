@@ -9,6 +9,9 @@ class SOD_Custom_Fields {
         add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
         // Save meta box data
         add_action('save_post', array($this, 'save_meta_box_data'));
+        
+        // Hooks to trigger email notifications
+        add_action('save_post_sod_booking', array($this, 'handle_booking_status_change'), 10, 3);
     }
 
     // Method to add meta boxes for custom post types
@@ -60,66 +63,51 @@ class SOD_Custom_Fields {
         wp_nonce_field('sod_booking_nonce_action', 'sod_booking_nonce');
 
         // Retrieve current meta data
-        $booking_date = get_post_meta($post->ID, 'sod_booking_date', true);
-        $booking_time = get_post_meta($post->ID, 'sod_booking_time', true);
-        $duration = get_post_meta($post->ID, 'sod_booking_duration', true);
-        $payment_method = get_post_meta($post->ID, 'sod_booking_payment_method', true);
+        $service_id = get_post_meta($post->ID, 'service_id', true);
+        $staff_id = get_post_meta($post->ID, 'staff_id', true);
+        $start_time = get_post_meta($post->ID, 'start_time', true);
+        $duration = get_post_meta($post->ID, 'duration', true);
+        $status = get_post_meta($post->ID, 'status', true);
 
         // Render fields
-        echo '<label for="sod_booking_date">' . __('Date:', 'textdomain') . '</label>';
-        echo '<input type="date" id="sod_booking_date" name="sod_booking_date" value="' . esc_attr($booking_date) . '" /><br>';
+        echo '<label for="sod_service_id">Service:</label>';
+        echo '<select id="sod_service_id" name="sod_service_id">';
+        $this->render_services_dropdown($service_id);
+        echo '</select><br>';
 
-        echo '<label for="sod_booking_time">' . __('Time:', 'textdomain') . '</label>';
-        echo '<input type="time" id="sod_booking_time" name="sod_booking_time" value="' . esc_attr($booking_time) . '" /><br>';
+        echo '<label for="sod_staff_id">Staff:</label>';
+        echo '<select id="sod_staff_id" name="sod_staff_id">';
+        $this->render_staff_dropdown($staff_id);
+        echo '</select><br>';
 
-        echo '<label for="sod_booking_duration">' . __('Duration (minutes):', 'textdomain') . '</label>';
-        echo '<input type="number" id="sod_booking_duration" name="sod_booking_duration" value="' . esc_attr($duration) . '" /><br>';
+        echo '<label for="sod_start_time">Start Time:</label>';
+        echo '<input type="datetime-local" id="sod_start_time" name="sod_start_time" value="' . esc_attr($start_time) . '"/><br>';
 
-        echo '<label for="sod_booking_payment_method">' . __('Payment Method:', 'textdomain') . '</label>';
-        echo '<select id="sod_booking_payment_method" name="sod_booking_payment_method">
-                <option value="digital" ' . selected($payment_method, 'digital', false) . '>Digital</option>
-                <option value="cash" ' . selected($payment_method, 'cash', false) . '>Cash</option>
-              </select><br>';
+        echo '<label for="sod_duration">Duration (minutes):</label>';
+        echo '<input type="number" id="sod_duration" name="sod_duration" value="' . esc_attr($duration) . '"/><br>';
+
+        echo '<label for="sod_status">Status:</label>';
+        echo '<select id="sod_status" name="sod_status">
+                <option value="pending" ' . selected($status, 'pending', false) . '>Pending</option>
+                <option value="confirmed" ' . selected($status, 'confirmed', false) . '>Confirmed</option>
+                <option value="canceled" ' . selected($status, 'canceled', false) . '>Canceled</option>
+              </select>';
     }
 
-    // Callback to display fields in the staff meta box
-    public function staff_details_callback($post) {
-        wp_nonce_field('sod_staff_nonce_action', 'sod_staff_nonce');
-
-        // Retrieve current meta data
-        $availability = get_post_meta($post->ID, 'sod_staff_availability', true);
-        $accepts_cash = get_post_meta($post->ID, 'sod_staff_accepts_cash', true);
-
-        // Render fields
-        echo '<label for="sod_staff_availability">' . __('Availability:', 'textdomain') . '</label>';
-        echo '<textarea id="sod_staff_availability" name="sod_staff_availability">' . esc_textarea($availability) . '</textarea><br>';
-
-        echo '<label for="sod_staff_accepts_cash">' . __('Accepts Cash Payments:', 'textdomain') . '</label>';
-        echo '<input type="checkbox" id="sod_staff_accepts_cash" name="sod_staff_accepts_cash" ' . checked($accepts_cash, 'yes', false) . ' value="yes" /><br>';
+    // Render dropdown options for services
+    private function render_services_dropdown($selected_service) {
+        $services = get_posts(array('post_type' => 'sod_service', 'posts_per_page' => -1));
+        foreach ($services as $service) {
+            echo '<option value="' . $service->ID . '" ' . selected($selected_service, $service->ID, false) . '>' . $service->post_title . '</option>';
+        }
     }
 
-    // Callback to display fields in the service meta box
-    public function service_details_callback($post) {
-        wp_nonce_field('sod_service_nonce_action', 'sod_service_nonce');
-
-        // Retrieve current meta data
-        $price = get_post_meta($post->ID, 'sod_service_price', true);
-
-        // Render fields
-        echo '<label for="sod_service_price">' . __('Price:', 'textdomain') . '</label>';
-        echo '<input type="number" step="0.01" id="sod_service_price" name="sod_service_price" value="' . esc_attr($price) . '" /><br>';
-    }
-
-    // Callback to display fields in the customer meta box
-    public function customer_details_callback($post) {
-        wp_nonce_field('sod_customer_nonce_action', 'sod_customer_nonce');
-
-        // Retrieve current meta data
-        $phone = get_post_meta($post->ID, 'sod_customer_phone', true);
-
-        // Render fields
-        echo '<label for="sod_customer_phone">' . __('Phone:', 'textdomain') . '</label>';
-        echo '<input type="tel" id="sod_customer_phone" name="sod_customer_phone" value="' . esc_attr($phone) . '" /><br>';
+    // Render dropdown options for staff
+    private function render_staff_dropdown($selected_staff) {
+        $staff_members = get_posts(array('post_type' => 'sod_staff', 'posts_per_page' => -1));
+        foreach ($staff_members as $staff) {
+            echo '<option value="' . $staff->ID . '" ' . selected($selected_staff, $staff->ID, false) . '>' . $staff->post_title . '</option>';
+        }
     }
 
     // Method to save meta box data
@@ -144,41 +132,138 @@ class SOD_Custom_Fields {
 
     // Method to save booking meta
     private function save_booking_meta($post_id) {
-        if (isset($_POST['sod_booking_date'])) {
-            update_post_meta($post_id, 'sod_booking_date', sanitize_text_field($_POST['sod_booking_date']));
+        global $wpdb;
+
+        // Prepare data
+        $booking_data = [
+            'service_id' => isset($_POST['sod_service_id']) ? sanitize_text_field($_POST['sod_service_id']) : '',
+            'staff_id' => isset($_POST['sod_staff_id']) ? sanitize_text_field($_POST['sod_staff_id']) : '',
+            'start_time' => isset($_POST['sod_start_time']) ? sanitize_text_field($_POST['sod_start_time']) : '',
+            'duration' => isset($_POST['sod_duration']) ? intval($_POST['sod_duration']) : 0,
+            'status' => isset($_POST['sod_status']) ? sanitize_text_field($_POST['sod_status']) : 'pending'
+        ];
+
+        // Update post meta
+        foreach ($booking_data as $key => $value) {
+            update_post_meta($post_id, $key, $value);
         }
-        if (isset($_POST['sod_booking_time'])) {
-            update_post_meta($post_id, 'sod_booking_time', sanitize_text_field($_POST['sod_booking_time']));
+
+        // Update or insert into a custom table
+        $existing_booking = $wpdb->get_var($wpdb->prepare("SELECT booking_id FROM {$wpdb->prefix}sod_bookings WHERE booking_id = %d", $post_id));
+
+        if ($existing_booking) {
+            // Update booking in the custom table
+            $wpdb->update("{$wpdb->prefix}sod_bookings", $booking_data, ['booking_id' => $post_id], ['%s', '%s', '%s', '%d', '%s'], ['%d']);
+        } else {
+            // Insert new booking
+            $booking_data['booking_id'] = $post_id;
+            $wpdb->insert("{$wpdb->prefix}sod_bookings", $booking_data, ['%d', '%s', '%s', '%s', '%d', '%s']);
         }
-        if (isset($_POST['sod_booking_duration'])) {
-            update_post_meta($post_id, 'sod_booking_duration', sanitize_text_field($_POST['sod_booking_duration']));
+    }
+
+    // Method to handle booking status change and trigger emails
+    public function handle_booking_status_change($post_id, $post, $update) {
+        if ($post->post_type != 'sod_booking') {
+            return;
         }
-        if (isset($_POST['sod_booking_payment_method'])) {
-            update_post_meta($post_id, 'sod_booking_payment_method', sanitize_text_field($_POST['sod_booking_payment_method']));
+
+        // Get the current status
+        $status = get_post_meta($post_id, 'status', true);
+
+        // Trigger appropriate emails based on status
+        switch ($status) {
+            case 'confirmed':
+                do_action('spark_divine_booking_confirmed', $post_id);
+                break;
+            case 'canceled':
+                do_action('spark_divine_booking_canceled', $post_id);
+                break;
+            // Add more cases as needed
+        }
+
+        // Schedule reminder email 24 hours before the booking
+        $this->schedule_reminder_email($post_id);
+    }
+
+    // Schedule a reminder email 24 hours before the booking
+    private function schedule_reminder_email($post_id) {
+        $start_time = get_post_meta($post_id, 'start_time', true);
+        $timestamp = strtotime($start_time) - 86400; // 24 hours before
+
+        if ($timestamp > time()) {
+            wp_schedule_single_event($timestamp, 'sod_send_reminder_email', array($post_id));
         }
     }
 
     // Method to save staff meta
     private function save_staff_meta($post_id) {
-        if (isset($_POST['sod_staff_availability'])) {
-            update_post_meta($post_id, 'sod_staff_availability', sanitize_textarea_field($_POST['sod_staff_availability']));
+        global $wpdb;
+
+        // Delete existing availability entries for this staff member in the custom table
+        $wpdb->delete($wpdb->prefix . 'sod_staff_availability', ['staff_id' => $post_id], ['%d']);
+
+        // Save new availability slots into the custom table
+        if (isset($_POST['availability_day']) && is_array($_POST['availability_day'])) {
+            $days = $_POST['availability_day'];
+            $start_times = $_POST['availability_start'];
+            $end_times = $_POST['availability_end'];
+            
+            foreach ($days as $index => $day) {
+                // Insert new availability slots into the custom table
+                $wpdb->insert($wpdb->prefix . 'sod_staff_availability', [
+                    'staff_id' => $post_id,
+                    'day_of_week' => sanitize_text_field($day),
+                    'start_time' => sanitize_text_field($start_times[$index]),
+                    'end_time' => sanitize_text_field($end_times[$index])
+                ], [
+                    '%d', '%s', '%s', '%s'
+                ]);
+            }
         }
+
+        // Save accepts_cash in wp_postmeta as this data is simple and not part of the custom table
         $accepts_cash = isset($_POST['sod_staff_accepts_cash']) ? 'yes' : 'no';
         update_post_meta($post_id, 'sod_staff_accepts_cash', $accepts_cash);
     }
 
     // Method to save service meta
     private function save_service_meta($post_id) {
-        if (isset($_POST['sod_service_price'])) {
-            update_post_meta($post_id, 'sod_service_price', sanitize_text_field($_POST['sod_service_price']));
+        global $wpdb;
+
+        // Prepare data
+        $price = isset($_POST['sod_service_price']) ? sanitize_text_field($_POST['sod_service_price']) : '';
+
+        // Update or insert into the custom table
+        $existing_service = $wpdb->get_var($wpdb->prepare("SELECT service_id FROM {$wpdb->prefix}sod_services WHERE service_id = %d", $post_id));
+
+        if ($existing_service) {
+            // Update the service in the custom table
+            $wpdb->update("{$wpdb->prefix}sod_services", ['price' => $price], ['service_id' => $post_id], ['%s'], ['%d']);
+        } else {
+            // Insert new service
+            $wpdb->insert("{$wpdb->prefix}sod_services", ['service_id' => $post_id, 'price' => $price], ['%d', '%s']);
         }
     }
 
     // Method to save customer meta
     private function save_customer_meta($post_id) {
-        if (isset($_POST['sod_customer_phone'])) {
-            update_post_meta($post_id, 'sod_customer_phone', sanitize_text_field($_POST['sod_customer_phone']));
+        global $wpdb;
+
+        // Prepare data
+        $phone = isset($_POST['sod_customer_phone']) ? sanitize_text_field($_POST['sod_customer_phone']) : '';
+
+        // Check if customer exists in the custom table
+        $existing_customer = $wpdb->get_var($wpdb->prepare("SELECT customer_id FROM {$wpdb->prefix}sod_customers WHERE customer_id = %d", $post_id));
+
+        if ($existing_customer) {
+            // Update customer in the custom table
+            $wpdb->update("{$wpdb->prefix}sod_customers", ['phone' => $phone], ['customer_id' => $post_id], ['%s'], ['%d']);
+        } else {
+            // Insert new customer
+            $wpdb->insert("{$wpdb->prefix}sod_customers", ['customer_id' => $post_id, 'phone' => $phone], ['%d', '%s']);
         }
-    }
+    }   
 }
-    
+
+// Initialize custom fields
+new SOD_Custom_Fields();

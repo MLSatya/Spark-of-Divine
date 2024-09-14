@@ -41,20 +41,23 @@ class SparkOfDivineServiceScheduler {
             'includes/events-api.php',
             'includes/booking-emails.php',
             'includes/sod-bookings-admin-page.php',
+            'includes/class-sod-booking-handler.php',
             'includes/class-sod-db-access.php',
             'includes/class-sod-custom-post-types.php',
+            'includes/class-sod-custom-fields.php',
             'includes/class-sod-registration-form.php',
-            'includes/class-sod-background-process.php', // Add background process class if needed
+            'includes/class-sod-staff-availability.php',
+            'includes/class-sod-background-process.php',
         );
 
         // Additional WooCommerce-related files
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
             $required_files = array_merge($required_files, array(
-                'includes/booking-created.php',
-                'includes/booking-confirmed.php',
-                'includes/booking-updated.php',
-                'includes/booking-canceled.php',
-                'includes/booking-paid.php',
+                'includes/emails/sod-booking-created-email.php',
+                'includes/emails/sod-booking-confirmed-email.php',
+                'includes/emails/sod-booking-updated-email.php',
+                'includes/emails/sod-booking-canceled-email.php',
+                'includes/emails/sod-booking-paid-email.php',
             ));
         }
 

@@ -114,7 +114,7 @@ class SOD_Registration_Form {
     // Save custom registration fields
     public function saveRegistrationFields($customer_id) {
     // Gather the data
-    $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';// Save the new fields
+    $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
         if (isset($_POST['first_name'])) {
             update_user_meta($customer_id, 'first_name', sanitize_text_field($_POST['first_name']));
         }

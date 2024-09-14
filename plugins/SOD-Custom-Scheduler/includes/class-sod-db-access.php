@@ -15,20 +15,22 @@ class SOD_DB_Access {
 
     // Create tables if they don't exist
     public function loadTables() {
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
-        // Table names
-        $customers_table = $this->wpdb->prefix . 'sod_customers';
-        $staff_table = $this->wpdb->prefix . 'sod_staff';
-        $staff_availability_table = $this->wpdb->prefix . 'sod_staff_availability';
-        $categories_table = $this->wpdb->prefix . 'sod_service_categories';
-        $services_table = $this->wpdb->prefix . 'sod_services';
-        $bookings_table = $this->wpdb->prefix . 'sod_bookings';
-        $events_table = $this->wpdb->prefix . 'sod_booking_events';
-        $payment_preferences_table = $this->wpdb->prefix . 'sod_payment_preferences';
+    // Table names
+    $customers_table = $this->wpdb->prefix . 'sod_customers';
+    $staff_table = $this->wpdb->prefix . 'sod_staff';
+    $staff_availability_table = $this->wpdb->prefix . 'sod_staff_availability';
+    $categories_table = $this->wpdb->prefix . 'sod_service_categories';
+    $services_table = $this->wpdb->prefix . 'sod_services';
+    $bookings_table = $this->wpdb->prefix . 'sod_bookings';
+    $events_table = $this->wpdb->prefix . 'sod_booking_events';
+    $payment_preferences_table = $this->wpdb->prefix . 'sod_payment_preferences';
+    $users_staff_table = $this->wpdb->prefix . 'sod_users_staff';
+    $users_services_table = $this->wpdb->prefix . 'sod_users_services';
 
-        // SQL for creating tables
-        $sql_customers = "CREATE TABLE IF NOT EXISTS $customers_table (
+    // SQL for creating tables
+    $sql_customers = "CREATE TABLE IF NOT EXISTS $customers_table (
         customer_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
@@ -39,66 +41,98 @@ class SOD_DB_Access {
         signing_dependent BOOLEAN DEFAULT FALSE,
         dependent_name VARCHAR(255),
         dependent_dob DATE
-        ) $this->charset_collate;";
-        
-        $sql_users_staff = "CREATE TABLE IF NOT EXISTS $users_staff_table (
+    ) $this->charset_collate;";
+    
+    $sql_staff = "CREATE TABLE IF NOT EXISTS $staff_table (
+        staff_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        role VARCHAR(255) NOT NULL,
+        availability TEXT
+    ) $this->charset_collate;";
+
+    $sql_users_staff = "CREATE TABLE IF NOT EXISTS $users_staff_table (
         id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         user_id BIGINT(20) UNSIGNED NOT NULL,
         staff_id BIGINT(20) UNSIGNED NOT NULL,
         FOREIGN KEY (user_id) REFERENCES {$this->wpdb->prefix}users(ID) ON DELETE CASCADE,
-        FOREIGN KEY (staff_id) REFERENCES {$this->wpdb->prefix}sod_staff(staff_id) ON DELETE CASCADE
+        FOREIGN KEY (staff_id) REFERENCES $staff_table(staff_id) ON DELETE CASCADE
     ) $this->charset_collate;";
 
-        $sql_users_services = "CREATE TABLE IF NOT EXISTS $users_services_table (
+    $sql_users_services = "CREATE TABLE IF NOT EXISTS $users_services_table (
         id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         user_id BIGINT(20) UNSIGNED NOT NULL,
         service_id BIGINT(20) UNSIGNED NOT NULL,
         FOREIGN KEY (user_id) REFERENCES {$this->wpdb->prefix}users(ID) ON DELETE CASCADE,
-        FOREIGN KEY (service_id) REFERENCES {$this->wpdb->prefix}sod_services(service_id) ON DELETE CASCADE
+        FOREIGN KEY (service_id) REFERENCES $services_table(service_id) ON DELETE CASCADE
     ) $this->charset_collate;";
 
-        // 4. Bookings Table
-        $bookings_table = $this->wpdb->prefix . 'sod_bookings';
-        $sql_bookings = "CREATE TABLE IF NOT EXISTS $bookings_table (
+    $sql_categories = "CREATE TABLE IF NOT EXISTS $categories_table (
+        category_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT
+    ) $this->charset_collate;";
+
+    $sql_services = "CREATE TABLE IF NOT EXISTS $services_table (
+        service_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        category_id BIGINT(20) UNSIGNED NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        price DECIMAL(10, 2) NOT NULL,
+        FOREIGN KEY (category_id) REFERENCES $categories_table(category_id) ON DELETE CASCADE
+    ) $this->charset_collate;";
+
+    $sql_staff_availability = "CREATE TABLE IF NOT EXISTS $staff_availability_table (
+        availability_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        staff_id BIGINT(20) UNSIGNED NOT NULL,
+        day_of_week VARCHAR(10) NOT NULL,
+        start_time TIME NOT NULL,
+        end_time TIME NOT NULL,
+        FOREIGN KEY (staff_id) REFERENCES $staff_table(staff_id) ON DELETE CASCADE
+    ) $this->charset_collate;";
+
+    $sql_bookings = "CREATE TABLE IF NOT EXISTS $bookings_table (
         booking_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        user_id BIGINT(20) UNSIGNED NOT NULL, -- Foreign key to users table
-        service_id BIGINT(20) UNSIGNED NOT NULL, -- Foreign key to services table
-        staff_id BIGINT(20) UNSIGNED NOT NULL, -- Foreign key to staff table
+        user_id BIGINT(20) UNSIGNED NOT NULL,
+        service_id BIGINT(20) UNSIGNED NOT NULL,
+        staff_id BIGINT(20) UNSIGNED NOT NULL,
         date DATE NOT NULL,
         time TIME NOT NULL,
         duration INT(11) NOT NULL,
         status VARCHAR(50) DEFAULT 'pending',
         payment_method VARCHAR(50) DEFAULT 'digital',
         FOREIGN KEY (user_id) REFERENCES {$this->wpdb->prefix}users(ID) ON DELETE CASCADE,
-        FOREIGN KEY (service_id) REFERENCES {$this->wpdb->prefix}sod_services(service_id) ON DELETE CASCADE,
-        FOREIGN KEY (staff_id) REFERENCES {$this->wpdb->prefix}sod_staff(staff_id) ON DELETE CASCADE
-        ) $this->charset_collate;";
-        dbDelta($sql_bookings);
+        FOREIGN KEY (service_id) REFERENCES $services_table(service_id) ON DELETE CASCADE,
+        FOREIGN KEY (staff_id) REFERENCES $staff_table(staff_id) ON DELETE CASCADE
+    ) $this->charset_collate;";
 
-        $sql_events = "CREATE TABLE IF NOT EXISTS $events_table (
-            event_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            booking_id BIGINT(20) UNSIGNED NOT NULL,
-            event_type VARCHAR(50) NOT NULL,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (booking_id) REFERENCES $bookings_table(booking_id) ON DELETE CASCADE
-        ) $this->charset_collate;";
+    $sql_events = "CREATE TABLE IF NOT EXISTS $events_table (
+        event_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        booking_id BIGINT(20) UNSIGNED NOT NULL,
+        event_type VARCHAR(50) NOT NULL,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (booking_id) REFERENCES $bookings_table(booking_id) ON DELETE CASCADE
+    ) $this->charset_collate;";
 
-        $sql_payment_preferences = "CREATE TABLE IF NOT EXISTS $payment_preferences_table (
-            payment_preference_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            staff_id BIGINT(20) UNSIGNED NOT NULL,
-            accepts_cash BOOLEAN NOT NULL DEFAULT FALSE,
-            accepts_digital BOOLEAN NOT NULL DEFAULT TRUE,
-            FOREIGN KEY (staff_id) REFERENCES $staff_table(staff_id) ON DELETE CASCADE
-        ) $this->charset_collate;";
+    $sql_payment_preferences = "CREATE TABLE IF NOT EXISTS $payment_preferences_table (
+        payment_preference_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        staff_id BIGINT(20) UNSIGNED NOT NULL,
+        accepts_cash BOOLEAN NOT NULL DEFAULT FALSE,
+        accepts_digital BOOLEAN NOT NULL DEFAULT TRUE,
+        FOREIGN KEY (staff_id) REFERENCES $staff_table(staff_id) ON DELETE CASCADE
+    ) $this->charset_collate;";
 
-       // Execute the table creation
-        dbDelta($sql_customers);
-        dbDelta($sql_staff);
-        dbDelta($sql_services);
-        dbDelta($sql_bookings);
-        dbDelta($sql_events);
-        dbDelta($sql_payment_preferences);
-    }
+    // Execute the table creation
+    dbDelta($sql_customers);
+    dbDelta($sql_staff);
+    dbDelta($sql_users_staff);
+    dbDelta($sql_users_services);
+    dbDelta($sql_categories);
+    dbDelta($sql_services);
+    dbDelta($sql_staff_availability);
+    dbDelta($sql_bookings);
+    dbDelta($sql_events);
+    dbDelta($sql_payment_preferences);
+}
 
    // Create tables if they don't exist
     public function loadTables() {
