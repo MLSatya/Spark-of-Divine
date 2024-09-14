@@ -20,6 +20,8 @@ class SOD_DB_Access {
         // Table names
         $customers_table = $this->wpdb->prefix . 'sod_customers';
         $staff_table = $this->wpdb->prefix . 'sod_staff';
+        $staff_availability_table = $this->wpdb->prefix . 'sod_staff_availability';
+        $categories_table = $this->wpdb->prefix . 'sod_service_categories';
         $services_table = $this->wpdb->prefix . 'sod_services';
         $bookings_table = $this->wpdb->prefix . 'sod_bookings';
         $events_table = $this->wpdb->prefix . 'sod_booking_events';
@@ -27,40 +29,51 @@ class SOD_DB_Access {
 
         // SQL for creating tables
         $sql_customers = "CREATE TABLE IF NOT EXISTS $customers_table (
-            customer_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL UNIQUE,
-            phone VARCHAR(20)
+        customer_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        phone VARCHAR(20),
+        client_phone VARCHAR(20),
+        emergency_contact_name VARCHAR(255),
+        emergency_contact_phone VARCHAR(20),
+        signing_dependent BOOLEAN DEFAULT FALSE,
+        dependent_name VARCHAR(255),
+        dependent_dob DATE
         ) $this->charset_collate;";
+        
+        $sql_users_staff = "CREATE TABLE IF NOT EXISTS $users_staff_table (
+        id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id BIGINT(20) UNSIGNED NOT NULL,
+        staff_id BIGINT(20) UNSIGNED NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES {$this->wpdb->prefix}users(ID) ON DELETE CASCADE,
+        FOREIGN KEY (staff_id) REFERENCES {$this->wpdb->prefix}sod_staff(staff_id) ON DELETE CASCADE
+    ) $this->charset_collate;";
 
-        $sql_staff = "CREATE TABLE IF NOT EXISTS $staff_table (
-            staff_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            role VARCHAR(255) NOT NULL,
-            availability TEXT
-        ) $this->charset_collate;";
+        $sql_users_services = "CREATE TABLE IF NOT EXISTS $users_services_table (
+        id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id BIGINT(20) UNSIGNED NOT NULL,
+        service_id BIGINT(20) UNSIGNED NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES {$this->wpdb->prefix}users(ID) ON DELETE CASCADE,
+        FOREIGN KEY (service_id) REFERENCES {$this->wpdb->prefix}sod_services(service_id) ON DELETE CASCADE
+    ) $this->charset_collate;";
 
-        $sql_services = "CREATE TABLE IF NOT EXISTS $services_table (
-            service_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            description TEXT,
-            price DECIMAL(10, 2) NOT NULL
-        ) $this->charset_collate;";
-
+        // 4. Bookings Table
+        $bookings_table = $this->wpdb->prefix . 'sod_bookings';
         $sql_bookings = "CREATE TABLE IF NOT EXISTS $bookings_table (
-            booking_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            customer_id BIGINT(20) UNSIGNED NOT NULL,
-            service_id BIGINT(20) UNSIGNED NOT NULL,
-            staff_id BIGINT(20) UNSIGNED NOT NULL,
-            date DATE NOT NULL,
-            time TIME NOT NULL,
-            duration INT(11) NOT NULL,
-            status VARCHAR(50) DEFAULT 'pending',
-            payment_method VARCHAR(50) DEFAULT 'digital',
-            FOREIGN KEY (customer_id) REFERENCES $customers_table(customer_id) ON DELETE CASCADE,
-            FOREIGN KEY (service_id) REFERENCES $services_table(service_id) ON DELETE CASCADE,
-            FOREIGN KEY (staff_id) REFERENCES $staff_table(staff_id) ON DELETE CASCADE
+        booking_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id BIGINT(20) UNSIGNED NOT NULL, -- Foreign key to users table
+        service_id BIGINT(20) UNSIGNED NOT NULL, -- Foreign key to services table
+        staff_id BIGINT(20) UNSIGNED NOT NULL, -- Foreign key to staff table
+        date DATE NOT NULL,
+        time TIME NOT NULL,
+        duration INT(11) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        payment_method VARCHAR(50) DEFAULT 'digital',
+        FOREIGN KEY (user_id) REFERENCES {$this->wpdb->prefix}users(ID) ON DELETE CASCADE,
+        FOREIGN KEY (service_id) REFERENCES {$this->wpdb->prefix}sod_services(service_id) ON DELETE CASCADE,
+        FOREIGN KEY (staff_id) REFERENCES {$this->wpdb->prefix}sod_staff(staff_id) ON DELETE CASCADE
         ) $this->charset_collate;";
+        dbDelta($sql_bookings);
 
         $sql_events = "CREATE TABLE IF NOT EXISTS $events_table (
             event_id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -99,15 +112,20 @@ class SOD_DB_Access {
     // ------------------
 
     // Create a customer
-    public function createCustomer($name, $email, $phone) {
-        $this->wpdb->insert($this->customers_table, [
-            'name' => $name,
-            'email' => $email,
-            'phone' => $phone,
-        ], [
-            '%s', '%s', '%s'
-        ]);
-        return $this->wpdb->insert_id;
+    public function createCustomer($name, $email, $client_phone, $emergency_contact_name, $emergency_contact_phone, $signing_dependent, $dependent_name, $dependent_dob) {
+    $this->wpdb->insert($this->wpdb->prefix . 'sod_customers', [
+        'name' => $name,
+        'email' => $email,
+        'client_phone' => $client_phone,
+        'emergency_contact_name' => $emergency_contact_name,
+        'emergency_contact_phone' => $emergency_contact_phone,
+        'signing_dependent' => $signing_dependent,
+        'dependent_name' => $dependent_name,
+        'dependent_dob' => $dependent_dob,
+    ], [
+        '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s'
+    ]);
+    return $this->wpdb->insert_id;
     }
 
     // Read a customer

@@ -18,6 +18,29 @@ class SOD_Registration_Form {
     // Render custom registration fields
     public function renderRegistrationFields() {
         ?>
+        <!-- Username Field -->
+        <p class="form-row form-row-wide">
+            <label for="reg_username"><?php _e('Username', 'spark-divine-service'); ?> <span class="required">*</span></label>
+            <input type="text" class="input-text" name="username" id="reg_username" value="<?php echo isset($_POST['username']) ? esc_attr($_POST['username']) : ''; ?>" />
+        </p>
+
+        <!-- First Name Field -->
+        <p class="form-row form-row-wide">
+            <label for="first_name"><?php _e('First Name', 'spark-divine-service'); ?> <span class="required">*</span></label>
+            <input type="text" class="input-text" name="first_name" id="first_name" value="<?php echo isset($_POST['first_name']) ? esc_attr($_POST['first_name']) : ''; ?>" />
+        </p>
+
+        <!-- Last Name Field -->
+        <p class="form-row form-row-wide">
+            <label for="last_name"><?php _e('Last Name', 'spark-divine-service'); ?> <span class="required">*</span></label>
+            <input type="text" class="input-text" name="last_name" id="last_name" value="<?php echo isset($_POST['last_name']) ? esc_attr($_POST['last_name']) : ''; ?>" />
+        </p>
+
+        <!-- Nicename Field -->
+        <p class="form-row form-row-wide">
+            <label for="nicename"><?php _e('Nicename', 'spark-divine-service'); ?></label>
+            <input type="text" class="input-text" name="nicename" id="nicename" value="<?php echo isset($_POST['nicename']) ? esc_attr($_POST['nicename']) : ''; ?>" />
+        </p>
         <p class="form-row form-row-wide">
             <label for="client_phone"><?php _e('Your Phone Number', 'spark-divine-service'); ?> <span class="required">*</span></label>
             <input type="tel" class="input-text" name="client_phone" id="client_phone" value="<?php echo isset($_POST['client_phone']) ? esc_attr($_POST['client_phone']) : ''; ?>" />
@@ -56,6 +79,15 @@ class SOD_Registration_Form {
 
     // Validate custom registration fields
     public function validateRegistrationFields($errors, $username, $email) {
+        if (empty($_POST['username'])) {
+            $errors->add('username_error', __('Please enter a username.', 'spark-divine-service'));
+        }
+        if (empty($_POST['first_name'])) {
+            $errors->add('first_name_error', __('Please enter your first name.', 'spark-divine-service'));
+        }
+        if (empty($_POST['last_name'])) {
+            $errors->add('last_name_error', __('Please enter your last name.', 'spark-divine-service'));
+        }
         if (empty($_POST['client_phone'])) {
             $errors->add('client_phone_error', __('Please enter your phone number.', 'spark-divine-service'));
         }
@@ -81,15 +113,31 @@ class SOD_Registration_Form {
 
     // Save custom registration fields
     public function saveRegistrationFields($customer_id) {
-        // Gather the data
-        $client_phone = isset($_POST['client_phone']) ? sanitize_text_field($_POST['client_phone']) : '';
-        $emergency_contact_name = isset($_POST['emergency_contact_name']) ? sanitize_text_field($_POST['emergency_contact_name']) : '';
-        $emergency_contact_phone = isset($_POST['emergency_contact_phone']) ? sanitize_text_field($_POST['emergency_contact_phone']) : '';
-        $signing_dependent = isset($_POST['signing_dependent']) ? sanitize_text_field($_POST['signing_dependent']) : '';
-        $dependent_name = isset($_POST['dependent_name']) ? sanitize_text_field($_POST['dependent_name']) : '';
-        $dependent_dob = isset($_POST['dependent_dob']) ? sanitize_text_field($_POST['dependent_dob']) : '';
+    // Gather the data
+    $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';// Save the new fields
+        if (isset($_POST['first_name'])) {
+            update_user_meta($customer_id, 'first_name', sanitize_text_field($_POST['first_name']));
+        }
+        if (isset($_POST['last_name'])) {
+            update_user_meta($customer_id, 'last_name', sanitize_text_field($_POST['last_name']));
+        }
+        if (isset($_POST['nicename'])) {
+            wp_update_user(array('ID' => $customer_id, 'nickname' => sanitize_text_field($_POST['nicename'])));
+        }
 
-        // Save the data to custom table using the SOD_DB_Access class
-        $this->db_access->createCustomer($customer_id, $client_phone, $emergency_contact_name, $emergency_contact_phone, $signing_dependent, $dependent_name, $dependent_dob);
+        // Update the username for the user if allowed by WooCommerce
+        if (isset($_POST['username']) && !username_exists($_POST['username'])) {
+            wp_update_user(array('ID' => $customer_id, 'user_login' => sanitize_user($_POST['username'])));
+        }
+    $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
+    $client_phone = isset($_POST['client_phone']) ? sanitize_text_field($_POST['client_phone']) : '';
+    $emergency_contact_name = isset($_POST['emergency_contact_name']) ? sanitize_text_field($_POST['emergency_contact_name']) : '';
+    $emergency_contact_phone = isset($_POST['emergency_contact_phone']) ? sanitize_text_field($_POST['emergency_contact_phone']) : '';
+    $signing_dependent = isset($_POST['signing_dependent']) ? 1 : 0;
+    $dependent_name = isset($_POST['dependent_name']) ? sanitize_text_field($_POST['dependent_name']) : '';
+    $dependent_dob = isset($_POST['dependent_dob']) ? sanitize_text_field($_POST['dependent_dob']) : '';
+
+    // Save the data to custom table using the SOD_DB_Access class
+    $this->db_access->createCustomer($name, $email, $client_phone, $emergency_contact_name, $emergency_contact_phone, $signing_dependent, $dependent_name, $dependent_dob);
     }
 }

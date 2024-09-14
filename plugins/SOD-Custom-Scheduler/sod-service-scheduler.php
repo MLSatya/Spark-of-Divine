@@ -1,4 +1,11 @@
 <?php
+/*
+Plugin Name: Spark of Divine Service Scheduler
+Description: A custom plugin for scheduling and managing services at the healing center.
+Version: 1.2
+Author: MLSatya
+*/
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
@@ -33,7 +40,7 @@ class SparkOfDivineServiceScheduler {
             'includes/booking-endpoint.php',
             'includes/events-api.php',
             'includes/booking-emails.php',
-            'includes/bookings-admin-page.php',
+            'includes/sod-bookings-admin-page.php',
             'includes/class-sod-db-access.php',
             'includes/class-sod-custom-post-types.php',
             'includes/class-sod-registration-form.php',
