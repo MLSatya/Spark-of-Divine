@@ -1,0 +1,956 @@
+/* ===============================
+   SPARK OF DIVINE - SCHEDULE CSS
+   Refactored and Organized - FIXED DROPDOWN DISPLAY
+   =============================== */
+
+/* Global Colors based on Elementor settings */
+:root {
+    --e-global-color-primary: #000000;    /* Black for primary elements */
+    --e-global-color-secondary: #333333;  /* Dark gray for secondary text/borders */
+    --e-global-color-text: #000;       
+    --e-global-color-accent: #4C3400;     /* Very dark brown for buttons */
+    --accent-color-2: #5D4500;            /* Slightly lighter dark brown for hover states */
+    --background-light: #F5F5F5;          /* Very light gray background (custom) */
+    --border-color: #CCCCCC;              /* Light gray for borders (custom) */
+    --super-light-brown: #EEE5D6;         /* Super Light Brown */
+    --slot-background: var(--super-light-brown); /* Use Super Light Brown variable */
+    --gold: #DDB600;                      /* Gold */
+    --orange: #E29100;                    /* Orange */
+    --event-bg-color: #FFDBAF;           /* Light orange/peach for event slots */
+    --event-border-color: #E29100;       /* Matching border color */
+}
+
+/* ===============================
+   1. GENERAL CONTAINER STYLES
+   =============================== */
+.sod-schedule-container {
+    padding: 10px;
+    margin-bottom: 10px;
+    overflow: visible !important; /* Allow dropdowns to show fully */
+}
+
+/* ===============================
+   2. NAVIGATION BAR
+   =============================== */
+.calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
+}
+
+.calendar-nav h2 {
+    margin: 0;
+    font-size: 1.2em;
+    color: var(--e-global-color-primary);
+    text-align: center;
+    flex-grow: 1;
+}
+
+.nav-button {
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: var(--e-global-color-accent);
+    color: #ffffff !important;
+    border: 1px solid var(--e-global-color-accent);
+    border-radius: 3px;
+    text-decoration: none !important;
+    transition: background-color 0.3s;
+}
+
+.nav-button a {
+    color: #F2EDEB;
+}
+
+.nav-button:hover {
+    background-color: var(--accent-color-2);
+}
+
+.nav-button:hover a {
+    color: #F2D5C4;
+}
+
+/* ===============================
+   3. FILTER SIDEBAR
+   =============================== */
+.sod-filter-sidebar {
+    background-color: var(--background-light);
+    padding: 10px;
+    border-radius: 3px;
+    margin-bottom: 5px;
+    border: 1px solid var(--border-color);
+    width: 100%;
+    overflow: visible !important; /* Allow dropdowns to show fully */
+}
+
+.sod-filter-sidebar h3 {
+    margin-top: 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.1em;
+    color: var(--e-global-color-primary);
+}
+
+.sod-filter-sidebar label {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 500;
+    color: var(--e-global-color-text);
+    font-size: 12px;
+}
+
+.sod-filter-sidebar select {
+    width: 100%;
+    min-width: 150px; /* Ensure minimum width for full text display */
+    padding: 6px;
+    margin-bottom: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background-color: white;
+    font-size: 12px;
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: visible; /* Allow full text to show */
+}
+
+.sod-filter-sidebar button, 
+.sod-filter-sidebar input[type="submit"] {
+    width: 100%;
+    padding: 6px;
+    background-color: var(--e-global-color-accent);
+    color: var(--gold);
+    border: 1px solid var(--e-global-color-accent);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s;
+}
+
+.sod-filter-sidebar button:hover,
+.sod-filter-sidebar input[type="submit"]:hover {
+    background-color: var(--accent-color-2);
+}
+
+/* ===============================
+   4. WEEK VIEW LAYOUT
+   =============================== */
+.view-week .calendar-grid {
+    display: flex;
+    flex-direction: column;
+}
+
+.view-week .calendar-wrapper {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    width: 100%;
+}
+
+.view-week .calendar-header {
+    grid-column: 1 / -1; /* Span all columns */
+    display: contents; /* Allow children to participate in the grid */
+}
+
+.view-week .calendar-header a.calendar-cell {
+    border: 1px solid var(--border-color); 
+    border-bottom: none; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px;
+    font-size: 14px;
+    color: var(--e-global-color-text);
+    text-decoration: none;
+    transition: background-color 0.3s;
+    background-color: var(--background-light);
+    height: 50px; /* Fixed height for header cells */
+}
+
+.view-week .calendar-header a.calendar-cell:last-child {
+    border-right: none;
+}
+
+.view-week .calendar-header a.calendar-cell.weekend {
+    background-color: #F0F0F0;
+}
+
+.view-week .calendar-header a.calendar-cell:hover {
+    background-color: var(--super-light-brown);
+}
+
+.view-week .calendar-body {
+    grid-column: 1 / -1; /* Span all columns */
+    display: contents; /* Allow children to participate in the grid */
+}
+
+.view-week .calendar-cell {
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 2px;
+    background: white;
+    border-radius: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 150px; /* Ensure enough space for slots */
+    overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully */
+    position: relative; /* Ensure dropdown positioning works */
+}
+
+.view-week .calendar-cell:last-child {
+    border-right: none;
+}
+
+.view-week .calendar-cell.weekend {
+    background-color: #F0F0F0;
+}
+
+/* ===============================
+   5. SLOT STYLING
+   =============================== */
+.view-week .schedule-slot {
+    display: flex;
+    flex-direction: column;
+    background: var(--slot-background);
+    border: 1px solid #000;
+    border-radius: 3px;
+    padding: 5px;
+    margin: 5px 0px;
+    font-size: 11px;
+    min-height: 60px; 
+    overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully */
+    box-sizing: border-box;
+    position: relative; /* Ensure dropdown positioning works */
+}
+
+.view-week .slot-info {
+    margin-bottom: 2px;
+    font-weight: 500;
+    font-size: 11px;
+    white-space: normal;
+    overflow: visible;
+    color: #000;
+}
+
+/* Event slot styling for week view */
+.view-week .schedule-slot.event-slot {
+    background-color: var(--event-bg-color) !important;
+    border-left: 3px solid var(--event-border-color) !important;
+}
+
+/* Add a "EVENT" label to make it clear */
+.view-week .schedule-slot.event-slot:after {
+    content: "Event";
+    display: inline-block;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 9px;
+    background-color: var(--event-border-color);
+    color: white;
+    padding: 2px 4px;
+    border-radius: 2px;
+    line-height: 1;
+}
+
+/* Update to slot title display */
+.slot-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 5px 0;
+    line-height: 1.2;
+    color: var(--e-global-color-primary);
+}
+
+/* Fix for slot info display */
+.slot-info {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+}
+
+.slot-time {
+    font-weight: bold;
+    color: var(--e-global-color-accent);
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.slot-staff {
+    font-size: 10px;
+    color: var(--e-global-color-secondary);
+    margin-top: 2px;
+}
+
+/* ===============================
+   6. MOBILE VIEW STYLING
+   =============================== */
+.mobile-view {
+    width: 100%;
+}
+
+.mobile-day-section {
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    background-color: white;
+    overflow: visible !important; /* Allow dropdowns to show fully */
+}
+
+.mobile-day-label {
+    font-weight: bold;
+    font-size: 16px;
+    margin: -10px -10px 10px -10px;
+    padding: 10px;
+    background-color: var(--background-light);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--e-global-color-text);
+    text-align: center;
+}
+
+.mobile-day-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: visible !important; /* Allow dropdowns to show fully */
+}
+
+/* ===============================
+   7. FORM STYLING (FIXED DROPDOWN DISPLAY)
+   =============================== */
+
+/* Form Styling within Slots - CRITICAL FIXES */
+.view-week .booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2px; /* Increased gap for better spacing */
+    margin-top: 2px;
+    overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully */
+    position: relative; /* Ensure dropdown positioning works */
+}
+
+.view-week .booking-form-row {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully */
+}
+
+/* FIXED: Attribute Select Dropdown */
+.view-week .attribute-select {
+    padding: 4px 20px 4px 6px; /* More right padding for dropdown arrow */
+    font-size: 10px;
+    width: 100%;
+    min-width: 120px; /* CRITICAL: Minimum width to show full text */
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background-color: white;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 10 10"><polygon points="0,0 10,0 5,5" fill="%233333"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 8px;
+    box-sizing: border-box;
+    color: var(--e-global-color-text);
+    white-space: nowrap; /* CRITICAL: Prevent text wrapping */
+    overflow: visible; /* CRITICAL: Allow full text to show */
+    text-overflow: clip; /* CRITICAL: Don't cut off text with ellipsis */
+}
+
+/* FIXED: Attribute Select Options */
+.view-week .attribute-select option {
+    padding: 4px 8px;
+    white-space: nowrap !important; /* CRITICAL: Prevent text wrapping */
+    overflow: visible !important; /* CRITICAL: Allow full text to show */
+    text-overflow: clip !important; /* CRITICAL: Don't cut off text */
+}
+
+.view-week .attribute-select:focus {
+    outline: none;
+    border-color: var(--e-global-color-accent);
+    box-shadow: 0 0 0 1px rgba(76, 52, 0, 0.2);
+    z-index: 999; /* Ensure dropdown appears above other elements */
+}
+
+.view-week .book-now {
+    padding: 4px 8px; /* Increased padding for better visibility */
+    margin: 2px 0 0 0; /* Added top margin for spacing */
+    font-size: 10px;
+    background-color: var(--e-global-color-accent);
+    color: #ffffff;
+    border: 1px solid var(--e-global-color-accent);
+    border-radius: 3px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+    box-sizing: border-box;
+}
+
+.view-week .book-now:hover {
+    background-color: var(--accent-color-2);
+}
+
+.view-week .book-now:hover a {
+    color: #F2D5C4;
+}
+
+/* FIXED: Time slot select dropdown */
+.view-week select[name="timeslot"],
+.day-slot-item select[name="timeslot"] {
+    padding: 4px 20px 4px 6px; /* More right padding for dropdown arrow */
+    font-size: 10px;
+    width: 100%;
+    min-width: 140px; /* CRITICAL: Minimum width to show full time ranges */
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background-color: white;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 10 10"><polygon points="0,0 10,0 5,5" fill="%233333"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 8px;
+    box-sizing: border-box;
+    color: var(--e-global-color-text);
+    margin-bottom: 2px; /* Space before the BOOK button */
+    white-space: nowrap; /* CRITICAL: Prevent text wrapping */
+    overflow: visible; /* CRITICAL: Allow full text to show */
+    text-overflow: clip; /* CRITICAL: Don't cut off text with ellipsis */
+}
+
+/* FIXED: Time slot select options */
+.view-week select[name="timeslot"] option,
+.day-slot-item select[name="timeslot"] option {
+    padding: 4px 8px;
+    white-space: nowrap !important; /* CRITICAL: Prevent text wrapping */
+    overflow: visible !important; /* CRITICAL: Allow full text to show */
+    text-overflow: clip !important; /* CRITICAL: Don't cut off text */
+}
+
+.view-week select[name="timeslot"]:focus,
+.day-slot-item select[name="timeslot"]:focus {
+    outline: none;
+    border-color: var(--e-global-color-accent);
+    box-shadow: 0 0 0 1px rgba(76, 52, 0, 0.2);
+    z-index: 999; /* Ensure dropdown appears above other elements */
+}
+
+/* ===============================
+   8. DAY VIEW STYLING
+   =============================== */
+.day-view-list {
+    background-color: white;
+    border-radius: 0;
+    overflow: visible !important; /* Allow dropdowns to show fully */
+    width: 100%;
+}
+
+.day-header {
+    background-color: var(--background-light);
+    padding: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.day-header h3 {
+    margin: 0;
+    color: var(--e-global-color-primary);
+    font-size: 1.3em;
+}
+
+.day-slots-list {
+    padding: 0;
+    overflow: visible !important; /* Allow dropdowns to show fully */
+}
+
+.day-slot-item {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    padding: 8px;
+    transition: background-color 0.2s;
+    width: 100%;
+    align-items: flex-start;
+    overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully */
+    position: relative; /* Ensure dropdown positioning works */
+}
+
+.day-slot-item:hover {
+    background-color: #F0F0F0;
+}
+
+.slot-time-column {
+    width: 15%;
+    padding-right: 8px;
+}
+
+.slot-details-column {
+    width: 55%;
+    padding-right: 8px;
+}
+
+.slot-booking-column {
+    width: 30%;
+    overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully */
+}
+
+.slot-time {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: var(--e-global-color-accent);
+    display: block;
+}
+
+.slot-service-title {
+    margin: 0 0 4px 0;
+    font-size: 1.2em;
+    color: var(--e-global-color-primary);
+}
+
+.slot-service-title a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.slot-meta {
+    font-size: 1em;
+    color: var(--e-global-color-secondary);
+}
+
+.slot-staff {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.slot-description {
+    margin-top: 4px;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+/* FIXED: Booking form within day view */
+.day-slot-item .booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully */
+}
+
+.day-slot-item .booking-form-row {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully */
+}
+
+/* FIXED: Day view attribute and timeslot selects */
+.day-slot-item .attribute-select,
+.day-slot-item select[name="timeslot"] {
+    padding: 6px 24px 6px 8px; /* More right padding for dropdown arrow */
+    font-size: 12px; /* Slightly larger for better readability */
+    width: 100%;
+    min-width: 160px; /* CRITICAL: Minimum width for full text display */
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background-color: white;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 10 10"><polygon points="0,0 10,0 5,5" fill="%233333"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 8px;
+    box-sizing: border-box;
+    color: var(--e-global-color-text);
+    white-space: nowrap; /* CRITICAL: Prevent text wrapping */
+    overflow: visible; /* CRITICAL: Allow full text to show */
+    text-overflow: clip; /* CRITICAL: Don't cut off text with ellipsis */
+}
+
+/* FIXED: Day view select options */
+.day-slot-item .attribute-select option,
+.day-slot-item select[name="timeslot"] option {
+    padding: 4px 8px;
+    white-space: nowrap !important; /* CRITICAL: Prevent text wrapping */
+    overflow: visible !important; /* CRITICAL: Allow full text to show */
+    text-overflow: clip !important; /* CRITICAL: Don't cut off text */
+}
+
+.day-slot-item .attribute-select:focus,
+.day-slot-item select[name="timeslot"]:focus {
+    outline: none;
+    border-color: var(--e-global-color-accent);
+    box-shadow: 0 0 0 1px rgba(76, 52, 0, 0.2);
+    z-index: 999; /* Ensure dropdown appears above other elements */
+}
+
+.day-slot-item .book-now {
+    padding: 6px 8px; /* Increased padding */
+    font-size: 12px; /* Slightly larger for better readability */
+    background-color: var(--e-global-color-accent);
+    color: #ffffff;
+    border: 1px solid var(--e-global-color-accent);
+    border-radius: 3px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+    margin-top: 4px; /* Added margin for spacing */
+}
+
+.day-slot-item .book-now:hover {
+    background-color: var(--accent-color-2);
+}
+
+/* Event slot styling for day view */
+.day-slot-item.event-slot {
+    background-color: var(--event-bg-color) !important;
+    border-left: 4px solid var(--event-border-color) !important;
+}
+
+/* Add a "EVENT" label to day view slots too */
+.day-slot-item.event-slot:after {
+    content: "Event";
+    display: inline-block;
+    position: static;
+    margin-left: 8px;
+    font-size: 9px;
+    background-color: var(--event-border-color);
+    color: white;
+    padding: 2px 4px;
+    border-radius: 2px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* ===============================
+   9. MODAL COMPATIBILITY
+   =============================== */
+.modal-body .schedule-slot {
+    max-height: 120px;
+    padding: 6px;
+    margin-bottom: 8px;
+    overflow: visible !important; /* Allow dropdowns to show fully */
+}
+
+.modal-body .slot-info {
+    font-size: 12px;
+    margin-bottom: 3px;
+}
+
+.modal-body .booking-form {
+    gap: 3px;
+    overflow: visible !important; /* Allow dropdowns to show fully */
+}
+
+.modal-body .attribute-select {
+    padding: 5px 20px 5px 8px;
+    font-size: 11px;
+    width: 100%;
+    min-width: 140px; /* Minimum width for full text display */
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.modal-body .book-now {
+    padding: 5px 10px;
+    font-size: 11px;
+    width: 100%;
+}
+
+/* ===============================
+   10. NOTIFICATION SYSTEM
+   =============================== */
+/* Container for notifications above calendar */
+.sod-notifications-container {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* WordPress-style notices */
+.sod-notice {
+    padding: 12px 15px;
+    margin: 5px 0 15px 0;
+    border-radius: 4px;
+    border-left: 4px solid #ccc;
+    background-color: #f8f8f8;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    position: relative;
+}
+
+.sod-notice p {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.5;
+}
+
+/* Success notice (green) */
+.sod-notice-success {
+    border-left-color: #46b450;
+    background-color: #ecf7ed;
+}
+
+/* Error notice (red) */
+.sod-notice-error {
+    border-left-color: #dc3232;
+    background-color: #f8e8e8;
+}
+
+/* Warning notice (yellow) */
+.sod-notice-warning {
+    border-left-color: #ffb900;
+    background-color: #fff8e5;
+}
+
+/* Info notice (blue) */
+.sod-notice-info {
+    border-left-color: #00a0d2;
+    background-color: #e5f5fa;
+}
+
+/* Dismiss button for notices */
+.sod-notice-dismiss {
+    position: absolute;
+    top: 0;
+    right: 1px;
+    border: none;
+    margin: 0;
+    padding: 9px;
+    background: none;
+    color: #72777c;
+    cursor: pointer;
+}
+
+.sod-notice-dismiss:hover {
+    color: #dc3232;
+}
+
+.sod-notice-dismiss:before {
+    content: "\f153";
+    font: normal 16px/20px dashicons;
+    speak: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide inline responses (we'll be moving them to the top container) */
+.booking-form + .booking-response {
+    display: none !important;
+}
+
+/* Clear previous response messages when submitting a new form */
+.booking-form.submitting + .sod-notifications-container .sod-notice {
+    display: none;
+}
+
+/* Specific adjustment for calendar view */
+.sod-scheduler-container .sod-notifications-container {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+/* Loading indicator for form submission */
+.sod-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    vertical-align: middle;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-radius: 50%;
+    border-top-color: #007cba;
+    animation: sod-spin 1s linear infinite;
+}
+
+@keyframes sod-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===============================
+   11. RESPONSIVE ADJUSTMENTS
+   =============================== */
+@media (max-width: 767px) {
+    /* Navigation */
+    .calendar-nav {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .calendar-nav h2 {
+        font-size: 1.1em;
+    }
+    
+    /* Filter Sidebar */
+    .sod-filter-sidebar select,
+    .sod-filter-sidebar button,
+    .sod-filter-sidebar input[type="submit"] {
+        font-size: 14px;
+    }
+    
+    /* Week View - Mobile Single Column Layout */
+    .view-week .calendar-header {
+        display: none; /* Hide header on mobile */
+    }
+
+    .view-week .calendar-body {
+        display: block !important;
+    }
+    
+    .view-week .calendar-cell {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 15px !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 4px !important;
+        min-height: auto !important;
+        padding: 10px !important;
+        position: relative !important;
+        overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully on mobile */
+    }
+    
+    /* Add visual separation for each day */
+    .view-week .calendar-cell:before {
+        content: "";
+        display: block !important;
+        height: 8px !important;
+        background-color: var(--background-light) !important;
+        margin: -10px -10px 10px -10px !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+    
+    /* Slot styling */
+    .view-week .schedule-slot {
+        width: 100% !important;
+        min-height: 150px !important;
+        margin: 10px 0 !important;
+        padding: 10px !important;
+        font-size: 12px;
+        overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully on mobile */
+    }
+    
+    .view-week .slot-info {
+        font-size: 14px !important;
+        margin-bottom: 8px !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* MOBILE: Form controls with larger sizes for better usability */
+    .view-week .attribute-select,
+    .view-week select[name="timeslot"],
+    .view-week .book-now {
+        padding: 12px !important; /* Larger padding for mobile */
+        font-size: 16px !important; /* Larger font to prevent zoom on iOS */
+        margin-bottom: 8px !important;
+        min-width: 200px !important; /* CRITICAL: Larger minimum width for mobile */
+        width: 100% !important;
+        white-space: nowrap !important; /* CRITICAL: Prevent text wrapping on mobile */
+        overflow: visible !important; /* CRITICAL: Allow full text to show on mobile */
+        text-overflow: clip !important; /* CRITICAL: Don't cut off text on mobile */
+    }
+    
+    /* MOBILE: Day view adjustments */
+    .day-slot-item {
+        flex-direction: column;
+        padding: 10px;
+        overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully on mobile */
+    }
+
+    .slot-time-column,
+    .slot-details-column,
+    .slot-booking-column {
+        width: 100%;
+        padding-right: 0;
+        margin-bottom: 6px;
+        overflow: visible !important; /* CRITICAL: Allow dropdowns to show fully on mobile */
+    }
+
+    .slot-time {
+        font-size: 1.2em;
+    }
+
+    .slot-service-title {
+        font-size: 1.3em;
+    }
+
+    .slot-meta {
+        font-size: 1.1em;
+    }
+
+    .slot-description {
+        font-size: 1em;
+    }
+
+    /* MOBILE: Day view form controls */
+    .day-slot-item .attribute-select,
+    .day-slot-item select[name="timeslot"] {
+        padding: 12px 30px 12px 12px !important; /* Larger padding for mobile */
+        font-size: 16px !important; /* Larger font to prevent zoom on iOS */
+        min-width: 220px !important; /* CRITICAL: Larger minimum width for mobile */
+        width: 100% !important;
+        white-space: nowrap !important; /* CRITICAL: Prevent text wrapping on mobile */
+        overflow: visible !important; /* CRITICAL: Allow full text to show on mobile */
+        text-overflow: clip !important; /* CRITICAL: Don't cut off text on mobile */
+    }
+
+    .day-slot-item .book-now {
+        padding: 12px !important; /* Larger padding for mobile */
+        font-size: 16px !important; /* Larger font for mobile */
+    }
+
+    /* Mobile adjustments for event indicator */
+    .view-week .schedule-slot.event-slot:after,
+    .day-slot-item.event-slot:after {
+        font-size: 10px;
+        padding: 3px 5px;
+    }
+}
+
+/* ===============================
+   12. SPECIAL CASES & UTILITIES
+   =============================== */
+/* Special formatting for yoga classes */
+.yoga-class {
+    /* Add any special styling for yoga classes here */
+}
+
+/* Appointment-only slots */
+.appointment-only,
+.day-slot-item.appointment-only,
+.view-week .schedule-slot.appointment-only {
+    background-color: #F2D5C4 !important; /* Soft peach/coral color */
+    border-color: #E8B9A0 !important; /* Slightly darker border */
+}
+
+/* Add a small indicator/badge to make it even more clear */
+.appointment-only:after,
+.day-slot-item.appointment-only:after,
+.view-week .schedule-slot.appointment-only:after {
+    content: "Appointment only";
+    display: inline-block;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 9px;
+    background-color: #E8B9A0;
+    color: #4C3400; /* Dark brown text */
+    padding: 2px 4px;
+    border-radius: 2px;
+    line-height: 1;
+}
+
+/* For day view, adjust the badge position */
+.day-slot-item.appointment-only:after {
+    position: static;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+/* Mobile adjustments for appointment-only indicator */
+@media (max-width: 767px) {
+    .appointment-only:after,
+    .day-slot-item.appointment-only:after,
+    .view-week .schedule-slot.appointment-only:after {
+        font-size: 10px;
+        padding: 3px 5px;
+    }
+}

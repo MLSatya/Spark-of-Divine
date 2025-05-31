@@ -1,0 +1,98 @@
+@charset "UTF-8";
+/* Post meta box specific styles */
+.postbox-container .postbox .inside {
+    padding: 12px !important;
+    margin: 0 !important;
+}
+
+/* Service duration meta box */
+#sod_service_details .service-details-container {
+    margin: 0;
+    padding: 0;
+}
+
+/* Form group styling */
+#sod_service_details .form-group {
+    margin-bottom: 20px;
+    padding: 0;
+}
+
+#sod_service_details .form-group label,
+#sod_service_details .form-group h4 {
+    display: block;
+    margin: 0 0 8px 0;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+/* Duration fields container */
+#sod_service_details #sod-service-durations {
+    margin: 0 0 12px 0;
+    padding: 0;
+}
+
+/* Individual duration field */
+#sod_service_details .sod-duration-field {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+    padding: 8px !important;
+    background: #f6f7f7 !important;
+    border: 1px solid #dcdcde !important;
+    border-radius: 4px !important;
+}
+
+/* Duration select field */
+#sod_service_details .sod-duration-field select {
+    min-width: 120px !important;
+    max-width: 200px !important;
+    margin: 0 !important;
+}
+
+/* Duration price input */
+#sod_service_details .sod-duration-field .price-input {
+    width: 100px !important;
+    margin: 0 !important;
+}
+
+/* Remove button */
+#sod_service_details .sod-duration-field .remove-duration {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    color: #b32d2e !important;
+    text-decoration: none !important;
+}
+
+#sod_service_details .sod-duration-field .remove-duration .dashicons {
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 20px !important;
+}
+
+/* Add duration button */
+#sod_service_details #add-duration {
+    margin-top: 8px !important;
+    margin-bottom: 0 !important;
+    height: auto !important;
+    line-height: normal !important;
+    padding: 6px 12px !important;
+}
+
+/* Base price input */
+#sod_service_details #sod_service_price {
+    width: 150px !important;
+    margin: 0 !important;
+}
+
+/* Loading state */
+.sod-duration-field.updating-message {
+    opacity: 0.5;
+    pointer-events: none;
+}

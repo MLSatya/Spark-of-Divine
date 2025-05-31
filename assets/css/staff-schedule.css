@@ -1,0 +1,25 @@
+@charset "UTF-8";
+/* Staff Schedule CSS */
+.sod-staff-schedule { max-width: 1200px; margin: 20px auto; padding: 20px; }
+.sod-schedule-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+.sod-schedule-table th { background-color: <?php echo esc_attr($settings['header_background']); ?>; padding: 10px; border: 1px solid #ddd; }
+.sod-schedule-table td { background-color: <?php echo esc_attr($settings['row_background']); ?>; padding: 10px; border: 1px solid #ddd; }
+.availability-row { background-color: #e0f7fa; }
+.sod-booking-action-btn { background-color: <?php echo esc_attr($settings['button_color']); ?>; color: #fff; border: 1px solid <?php echo esc_attr($settings['button_color']); ?>; padding: 5px 10px; margin: 0 5px; cursor: pointer; }
+.sod-reschedule-form { margin-top: 10px; padding: 10px; border: 1px solid #ddd; background-color: #f9f9f9; }
+
+/* Filter styles */
+.sod-schedule-filters { margin-bottom: 20px; padding: 15px; background-color: #f5f5f5; border-radius: 4px; }
+.filter-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
+.filter-group { margin-bottom: 10px; }
+.filter-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+.filter-group select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; min-width: 200px; }
+.filter-actions { display: flex; gap: 10px; }
+.sod-filter-btn { background-color: <?php echo esc_attr($settings['button_color']); ?>; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+.sod-reset-btn { background-color: #f8f9fa; color: #333; border: 1px solid #ddd; padding: 8px 15px; border-radius: 4px; text-decoration: none; display: inline-block; }
+
+@media (max-width: 768px) {
+    .filter-row { flex-direction: column; align-items: stretch; }
+    .filter-group select { width: 100%; }
+    .sod-schedule-table { display: block; overflow-x: auto; }
+}

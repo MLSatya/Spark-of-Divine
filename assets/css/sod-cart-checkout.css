@@ -1,0 +1,499 @@
+@charset "UTF-8";
+/**
+ * Spark of Divine - Cart & Checkout Integration Styles (Refactored)
+ */
+
+/* -------------------- Two-column Layout -------------------- */
+.sod-two-column-layout {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+}
+
+.sod-column-left {
+    flex: 1;
+    min-width: 300px;
+    padding: 0 10px;
+    margin-bottom: 20px;
+}
+
+.sod-column-right {
+    flex: 1;
+    min-width: 300px;
+    padding: 0 10px;
+}
+
+/* -------------------- Return to Calendar Link -------------------- */
+.sod-top-actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 15px;
+}
+
+.sod-return-to-calendar {
+    display: inline-block;
+    background: none !important;
+    color: var(--e-global-color-primary, #7f54b3) !important; 
+    border: none !important;
+    padding: 0 !important;
+    font-weight: normal !important;
+    text-decoration: underline !important;
+    box-shadow: none !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+}
+
+.sod-return-to-calendar:hover {
+    color: var(--e-global-color-primary-dark, #634496) !important;
+}
+
+/* -------------------- Contact Form Container -------------------- */
+.sod-cart-contact-info,
+.elementor-widget-sod_contact_fields .elementor-widget-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+/* Guest checkout notice */
+.sod-guest-checkout-notice {
+    margin: 0 0 15px 0;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.sod-guest-checkout-notice strong {
+    color: #333;
+}
+
+/* Contact form title */
+.sod-cart-contact-info h3,
+.sod-contact-title {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+    display: block !important;
+}
+
+/* Form description */
+.sod-cart-contact-info p,
+.sod-cart-contact-info .sod-contact-description {
+    margin-bottom: 15px;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.4;
+    display: block !important;
+}
+
+/* -------------------- Form Fields -------------------- */
+/* Field container */
+.sod-cart-field {
+    margin-bottom: 12px;
+    display: block !important;
+}
+
+/* Field labels */
+.sod-cart-field label {
+    display: block !important;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Input styling */
+.sod-cart-field input[type="text"],
+.sod-cart-field input[type="email"],
+.sod-cart-field input[type="tel"],
+.sod-cart-field input[type="password"] {
+    width: 100% !important;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 1.4;
+    height: 36px;
+    transition: border-color 0.2s ease;
+    display: block !important;
+}
+
+.sod-cart-field input:focus {
+    outline: none;
+    border-color: var(--e-global-color-primary, #7f54b3);
+    box-shadow: 0 0 0 1px var(--e-global-color-primary, #7f54b3);
+}
+
+/* Required field styling */
+.sod-cart-field input[required] {
+    border-left: 3px solid #e2401c;
+}
+
+.sod-cart-field label span.required {
+    color: #e2401c;
+}
+
+/* Checkbox field styling */
+.sod-checkbox-field {
+    margin: 15px 0;
+}
+
+.sod-checkbox-field label {
+    display: flex !important;
+    align-items: flex-start;
+    font-weight: normal !important;
+    font-size: 13px !important;
+    line-height: 1.4;
+}
+
+.sod-checkbox-field input[type="checkbox"] {
+    margin: 2px 8px 0 0;
+    min-width: 16px;
+    height: 16px;
+}
+
+/* Terms notice styling */
+.sod-terms-notice {
+    font-size: 13px;
+    color: #666;
+    margin: 10px 0;
+    line-height: 1.4;
+}
+
+/* Register link styling */
+.sod-register-link {
+    font-size: 13px;
+    margin: 10px 0;
+    color: #666;
+}
+
+.sod-register-link a {
+    color: var(--e-global-color-primary, #7f54b3);
+    text-decoration: underline;
+}
+
+/* Error and validation styling */
+.sod-cart-field .error-message {
+    color: #e2401c;
+    font-size: 12px;
+    margin-top: 3px;
+    display: block;
+}
+
+.sod-cart-field input.has-error {
+    border-color: #e2401c;
+    background-color: rgba(226, 64, 28, 0.05);
+}
+
+.sod-success-message {
+    color: #4CAF50;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: rgba(76, 175, 80, 0.1);
+    border-left: 3px solid #4CAF50;
+    font-size: 14px;
+}
+
+.sod-error-message {
+    color: #e2401c;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: rgba(226, 64, 28, 0.1);
+    border-left: 3px solid #e2401c;
+    font-size: 14px;
+}
+
+/* Submit button */
+.sod-save-contact-info {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    margin-top: 15px;
+    background-color: var(--e-global-color-primary, #7f54b3);
+    color: white !important;
+    border: none;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.4;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sod-save-contact-info:hover {
+    background-color: var(--e-global-color-primary-dark, #634496);
+    color: white !important;
+}
+
+/* -------------------- Cart Progress Styling -------------------- */
+.sod-cart-progress {
+    margin-bottom: 20px;
+}
+
+.sod-progress-steps {
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+}
+
+.sod-progress-steps:before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+.sod-progress-steps li {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.sod-progress-steps li .step {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    margin: 0 auto 8px;
+    font-weight: bold;
+    border: 2px solid #e0e0e0;
+    font-size: 16px;
+}
+
+.sod-progress-steps li .label {
+    display: block;
+    color: #666;
+    font-size: 14px;
+}
+
+.sod-progress-steps li.active .step {
+    background-color: var(--e-global-color-primary, #7f54b3);
+    color: white;
+    border-color: var(--e-global-color-primary, #7f54b3);
+}
+
+.sod-progress-steps li.active .label {
+    color: var(--e-global-color-primary, #7f54b3);
+    font-weight: bold;
+}
+
+/* -------------------- Cart Items Styling -------------------- */
+/* Cart table */
+.woocommerce-cart-form__contents {
+    font-size: 14px;
+}
+
+.woocommerce-cart-form__contents th {
+    padding: 10px !important;
+    font-size: 14px;
+}
+
+.woocommerce-cart-form__contents td {
+    padding: 10px !important;
+}
+
+.woocommerce-cart-form__contents .product-thumbnail img {
+    max-width: 60px !important;
+    height: auto !important;
+}
+
+/* Coupon Field Fixes */
+.woocommerce-cart-form .coupon,
+.sod-coupon-compact {
+    display: inline-flex !important;
+    align-items: center;
+    max-width: 300px !important;
+}
+
+.woocommerce-cart-form .coupon input,
+.sod-coupon-compact input {
+    width: 140px !important;
+    margin-right: 8px;
+    height: 36px !important;
+}
+
+.woocommerce-cart-form .coupon label {
+    margin-right: 8px;
+}
+
+.woocommerce-cart-form .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px; /* This adds space between the coupon and update cart button */
+}
+
+/* Cart buttons */
+.woocommerce-cart-form button[name="update_cart"],
+.woocommerce-cart-form button[name="apply_coupon"] {
+    padding: 8px 15px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    height: 36px !important;
+    min-height: unset !important;
+    width: auto !important;
+    background-color: var(--e-global-color-secondary, #54595f);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.woocommerce-cart-form button[name="update_cart"]:hover,
+.woocommerce-cart-form button[name="apply_coupon"]:hover {
+    background-color: var(--e-global-color-secondary-dark, #40454a);
+    margin-left: auto; /* Pushes the button to the right */
+}
+
+/* Checkout button */
+.checkout-button, 
+.wc-proceed-to-checkout .button {
+    display: inline-block;
+    width: 100%;
+    padding: 12px 15px;
+    background-color: var(--e-global-color-primary, #7f54b3);
+    color: white !important;
+    border: none;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.checkout-button:hover, 
+.wc-proceed-to-checkout .button:hover {
+    background-color: var(--e-global-color-primary-dark, #634496);
+    color: white !important;
+    text-decoration: none !important;
+}
+
+/* Cart totals table */
+.cart_totals {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.cart_totals h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+}
+
+.cart_totals table {
+    margin-bottom: 15px;
+}
+
+.cart_totals th {
+    font-weight: 500;
+    text-align: left;
+    padding: 10px !important;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.cart_totals td {
+    text-align: right;
+    padding: 10px !important;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.cart_totals tr.order-total {
+    font-weight: 600;
+}
+
+/* -------------------- Responsive Styling -------------------- */
+@media (max-width: 767px) {
+    /* Stack to single column */
+    .sod-two-column-layout {
+        flex-direction: column;
+    }
+    
+    .sod-column-left,
+    .sod-column-right {
+        width: 100%;
+    }
+    
+    /* Adjustments for small screens */
+    .sod-cart-contact-info,
+    .elementor-widget-sod_contact_fields .elementor-widget-container {
+        padding: 12px;
+    }
+    
+    /* Make coupon full width on mobile */
+    .woocommerce-cart-form .coupon,
+    .sod-coupon-compact {
+        display: flex !important;
+        flex-direction: column;
+        max-width: 100% !important;
+        margin-bottom: 15px;
+    }
+    
+    .woocommerce-cart-form .coupon input,
+    .sod-coupon-compact input {
+        width: 100% !important;
+        margin-bottom: 8px;
+        margin-right: 0;
+    }
+    
+    .woocommerce-cart-form button[name="apply_coupon"] {
+        width: 100%;
+    }
+    
+    .woocommerce-cart-form .actions {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .woocommerce-cart-form button[name="update_cart"] {
+        margin-top: 15px;
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    /* Smaller progress steps */
+    .sod-progress-steps li .step {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+    
+    .sod-progress-steps li .label {
+        font-size: 12px;
+    }
+    
+    /* Make tables scroll horizontally */
+    .woocommerce-cart-form__contents {
+        display: block;
+        overflow-x: auto;
+    }
+}

@@ -1,0 +1,448 @@
+/**
+ * SOD Enhanced Booking CSS - Complete Fix
+ * This file should be enqueued in your plugin to restore the enhanced UI
+ */
+
+/* CRITICAL: Ensure all containers allow dropdown visibility */
+.sod-schedule-container,
+.view-week .calendar-cell,
+.day-slot-item,
+.schedule-slot,
+.booking-form,
+.modal-body {
+    overflow: visible !important;
+    position: relative;
+}
+
+/* Enhanced Time Slot Selection Styles */
+.sod-enhanced-timeslots {
+    margin: 15px 0;
+    overflow: visible !important;
+    position: relative;
+    z-index: 100;
+}
+
+.sod-enhanced-timeslots h4 {
+    margin: 0 0 10px 0;
+    color: var(--e-global-color-primary, #2C3E50);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.sod-timeslots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 15px 0;
+    overflow: visible !important;
+    position: relative;
+    z-index: 100;
+}
+
+.sod-timeslot-option {
+    padding: 12px 16px;
+    border: 2px solid var(--border-color, #E2E8F0);
+    background: #fff;
+    cursor: pointer;
+    border-radius: 6px;
+    text-align: center;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 48px;
+    overflow: visible !important;
+    z-index: 101;
+}
+
+.sod-timeslot-option:hover:not(.disabled) {
+    border-color: var(--e-global-color-accent, #3498DB);
+    background: var(--background-light, #F5F6F7);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.15);
+}
+
+.sod-timeslot-option.selected {
+    border-color: var(--e-global-color-accent, #3498DB);
+    background: var(--e-global-color-accent, #3498DB);
+    color: white;
+    font-weight: 600;
+}
+
+.sod-timeslot-option.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #f5f5f5;
+    transform: none;
+    color: #999;
+}
+
+.sod-timeslot-duration {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 2px;
+}
+
+/* CRITICAL FIX: Dropdown visibility in week/day views */
+.view-week .booking-form,
+.day-slot-item .booking-form,
+.schedule-slot .booking-form,
+.mobile-day-section .booking-form {
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    margin-top: 5px;
+}
+
+/* CRITICAL FIX: All select dropdowns */
+.view-week .attribute-select,
+.day-slot-item .attribute-select,
+.view-week select[name="timeslot"],
+.day-slot-item select[name="timeslot"],
+.mobile-day-section select,
+.sod-filter-sidebar select {
+    position: relative !important;
+    z-index: 1001 !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    text-overflow: clip !important;
+    min-width: 200px !important;
+    max-width: none !important;
+    padding: 8px 24px 8px 12px !important;
+    font-size: 13px !important;
+    border: 1px solid var(--border-color, #CCCCCC) !important;
+    border-radius: 4px !important;
+    background-color: white !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,0 5,5" fill="%23333"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 8px center !important;
+    background-size: 10px !important;
+    appearance: none !important;
+}
+
+/* CRITICAL FIX: Dropdown options visibility */
+.view-week .attribute-select option,
+.day-slot-item .attribute-select option,
+.view-week select[name="timeslot"] option,
+.day-slot-item select[name="timeslot"] option,
+.mobile-day-section select option,
+.sod-filter-sidebar select option {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    background-color: white !important;
+    color: var(--e-global-color-text, #000) !important;
+}
+
+/* Focus states for dropdowns */
+.view-week .attribute-select:focus,
+.day-slot-item .attribute-select:focus,
+.view-week select[name="timeslot"]:focus,
+.day-slot-item select[name="timeslot"]:focus,
+.mobile-day-section select:focus,
+.sod-filter-sidebar select:focus {
+    outline: none !important;
+    border-color: var(--e-global-color-accent, #4C3400) !important;
+    box-shadow: 0 0 0 2px rgba(76, 52, 0, 0.2) !important;
+    z-index: 1002 !important;
+}
+
+/* Enhanced Loading States */
+.sod-loading-timeslots {
+    text-align: center;
+    padding: 30px;
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+    border-radius: 6px;
+    margin: 20px 0;
+    position: relative;
+}
+
+.sod-loading-timeslots::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #1565c0;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: sod-spin 1s linear infinite;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+@keyframes sod-spin {
+    to { transform: rotate(360deg); }
+}
+
+.sod-no-timeslots {
+    text-align: center;
+    padding: 30px;
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    margin: 20px 0;
+}
+
+/* Enhanced Booking Summary */
+.sod-booking-summary {
+    margin: 25px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border-left: 5px solid var(--e-global-color-accent, #3498DB);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.sod-booking-summary h4 {
+    margin: 0 0 15px 0;
+    color: var(--e-global-color-accent, #3498DB);
+    font-size: 18px;
+}
+
+.sod-booking-summary p {
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sod-booking-summary strong {
+    color: var(--e-global-color-text, #2C3E50);
+    min-width: 80px;
+}
+
+/* Enhanced Error/Success Messages */
+.sod-booking-errors .error-message {
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+    border-left: 4px solid #d32f2f;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    box-shadow: 0 2px 4px rgba(211, 47, 47, 0.1);
+}
+
+.sod-success-message {
+    background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+    border-left: 4px solid #388e3c;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    box-shadow: 0 2px 4px rgba(56, 142, 60, 0.1);
+}
+
+/* Enhanced Duration Display */
+.sod-duration-display {
+    margin: 10px 0;
+    padding: 8px 12px;
+    background: var(--background-light, #F5F6F7);
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--e-global-color-text, #2C3E50);
+    border-left: 3px solid var(--e-global-color-accent, #3498DB);
+}
+
+.sod-duration-display strong {
+    color: var(--e-global-color-accent, #3498DB);
+}
+
+/* Enhanced Button Styles */
+.sod-book-button,
+.view-week .book-now,
+.day-slot-item .book-now,
+.mobile-day-section .book-now {
+    background: linear-gradient(135deg, var(--e-global-color-accent, #4C3400) 0%, var(--accent-color-2, #5D4500) 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    margin-top: 5px !important;
+}
+
+.sod-book-button:hover,
+.view-week .book-now:hover,
+.day-slot-item .book-now:hover,
+.mobile-day-section .book-now:hover {
+    background: linear-gradient(135deg, var(--accent-color-2, #5D4500) 0%, var(--e-global-color-accent, #4C3400) 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(76, 52, 0, 0.3) !important;
+}
+
+.sod-book-button:disabled,
+.view-week .book-now:disabled,
+.day-slot-item .book-now:disabled,
+.mobile-day-section .book-now:disabled {
+    background: #ccc !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Mobile Responsive Fixes */
+@media (max-width: 768px) {
+    .sod-timeslots-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+    
+    .sod-timeslot-option {
+        padding: 10px 12px;
+        font-size: 13px;
+        min-height: 44px;
+    }
+    
+    /* CRITICAL: Mobile dropdown fixes */
+    .view-week .attribute-select,
+    .day-slot-item .attribute-select,
+    .view-week select[name="timeslot"],
+    .day-slot-item select[name="timeslot"],
+    .mobile-day-section select {
+        min-width: 250px !important;
+        font-size: 16px !important; /* Prevent zoom on iOS */
+        padding: 12px 30px 12px 15px !important;
+    }
+
+    /* Mobile view improvements */
+    .mobile-day-section {
+        overflow: visible !important;
+        position: relative !important;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color, #CCCCCC);
+        border-radius: 6px;
+        padding: 15px;
+        background-color: white;
+    }
+
+    .mobile-day-label {
+        font-weight: bold;
+        font-size: 16px;
+        margin: -15px -15px 15px -15px;
+        padding: 12px 15px;
+        background-color: var(--background-light, #F5F5F5);
+        border-bottom: 1px solid var(--border-color, #CCCCCC);
+        color: var(--e-global-color-text, #000);
+        text-align: center;
+    }
+
+    .mobile-day-slots {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        overflow: visible !important;
+    }
+
+    .mobile-day-slots .schedule-slot {
+        overflow: visible !important;
+        position: relative !important;
+        background: var(--slot-background, #EEE5D6);
+        border: 1px solid #000;
+        border-radius: 6px;
+        padding: 15px;
+        min-height: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .sod-timeslots-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .sod-timeslot-option {
+        padding: 8px 10px;
+        font-size: 12px;
+        min-height: 40px;
+    }
+
+    .view-week .attribute-select,
+    .day-slot-item .attribute-select,
+    .view-week select[name="timeslot"],
+    .day-slot-item select[name="timeslot"],
+    .mobile-day-section select {
+        min-width: 280px !important;
+        padding: 14px 35px 14px 18px !important;
+    }
+}
+
+/* Animation Classes */
+.sod-fade-in {
+    animation: sod-fadeIn 0.3s ease-out;
+}
+
+@keyframes sod-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sod-slide-up {
+    animation: sod-slideUp 0.3s ease-out;
+}
+
+@keyframes sod-slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Integration Fixes */
+.modal .sod-timeslots-grid,
+.sod-modal .sod-timeslots-grid {
+    margin: 15px 0;
+    overflow: visible !important;
+}
+
+.modal .sod-booking-summary,
+.sod-modal .sod-booking-summary {
+    margin: 20px 0;
+}
+
+.sod-schedule-container .sod-timeslots-grid {
+    margin: 10px 0;
+    overflow: visible !important;
+}
+
+/* Print styles */
+@media print {
+    .sod-timeslots-grid,
+    .sod-book-button,
+    .sod-booking-errors {
+        display: none;
+    }
+    
+    .sod-booking-summary {
+        background: none !important;
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+}

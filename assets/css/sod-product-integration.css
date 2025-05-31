@@ -1,0 +1,161 @@
+/**
+ * Spark of Divine - Product Integration Styles
+ */
+
+/* Service Tab Styles */
+#sod_service_options .options_group {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+#sod_service_options h4 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    color: #23282d;
+}
+
+/* Attribute Management */
+.service-attributes-section {
+    margin-top: 15px;
+}
+
+.attribute-type-controls {
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.attribute-management {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background: #f9f9f9;
+}
+
+.service-attributes-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.service-attributes-table th {
+    text-align: left;
+    padding: 8px;
+    background-color: #f1f1f1;
+    border-bottom: 1px solid #ddd;
+}
+
+.service-attributes-table td {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.attribute-row:hover {
+    background-color: #f5f5f5;
+}
+
+.attribute-row input[type="text"],
+.attribute-row input[type="number"] {
+    width: 100%;
+}
+
+.attribute-row span {
+    margin-left: 5px;
+    color: #666;
+}
+
+/* Variation Preview Section */
+.variation-preview-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.variation-preview-section h4 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.variation-list {
+    margin: 0;
+    padding: 0 0 0 20px;
+}
+
+.variation-list li {
+    margin-bottom: 5px;
+}
+
+/* Frontend Display */
+.service-attributes-info {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f7f7f7;
+    border-radius: 4px;
+}
+
+.service-attributes-info h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.service-attribute-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.service-attribute-type {
+    flex: 1;
+    min-width: 200px;
+}
+
+.service-attribute-type h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.attribute-options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.attribute-options li {
+    padding: 5px 0;
+    border-bottom: 1px dotted #ddd;
+}
+
+.attribute-options li:last-child {
+    border-bottom: none;
+}
+
+/* Responsive Tweaks */
+@media screen and (max-width: 782px) {
+    .service-attribute-types {
+        flex-direction: column;
+    }
+    
+    .service-attribute-type {
+        width: 100%;
+    }
+    
+    .attribute-type-controls {
+        flex-direction: column;
+    }
+    
+    .attribute-type-controls .button {
+        width: 100%;
+        text-align: center;
+    }
+}
