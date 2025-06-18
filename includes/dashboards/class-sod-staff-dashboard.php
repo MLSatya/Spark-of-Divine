@@ -44,7 +44,7 @@ class SOD_Staff_Dashboard {
         add_shortcode('sod_staff_dashboard', array($this, 'render_staff_dashboard_shortcode'));
         
         // Setup custom rewrite rules for staff-schedule URL
-        add_action('init', array($this, 'add_staff_schedule_rewrite_rules'));
+        /*add_action('init', array($this, 'add_staff_schedule_rewrite_rules'));*/
         add_action('template_redirect', array($this, 'handle_staff_schedule_page'));
         
         // Sync WooCommerce order status with booking status
@@ -56,7 +56,7 @@ class SOD_Staff_Dashboard {
     
     /**
      * Add custom rewrite rules for staff schedule page
-     */
+     
     public function add_staff_schedule_rewrite_rules() {
         add_rewrite_rule(
             'staff-schedule/?$',
@@ -84,7 +84,7 @@ class SOD_Staff_Dashboard {
         
         add_rewrite_tag('%staff_schedule%', '([^&]+)');
     }
-    
+    */
     /**
      * Handle custom staff schedule page
      */

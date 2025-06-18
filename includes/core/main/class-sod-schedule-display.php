@@ -83,41 +83,11 @@ class SOD_Schedule_Display {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sod_filter_action'])) {
             $this->handle_filter_submission();
         }
-        add_action('wp_enqueue_scripts', 'sod_enqueue_jquery_ui', 98);
     }
     
     /**
      * Enqueue jQuery UI for the datepicker functionality
      */
-    public function sod_enqueue_jquery_ui() {
-        // Only load on pages that contain the schedule shortcode
-        global $post;
-        if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'sod_schedule')) {
-            // Add jQuery UI core and datepicker
-            wp_enqueue_script('jquery-ui-core');
-            wp_enqueue_script('jquery-ui-datepicker');
-
-            // Add jQuery UI CSS
-            wp_enqueue_style(
-                'jquery-ui-style',
-                '//code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css',
-                array(),
-                '1.13.2'
-            );
-
-            // Add our error handler script
-            wp_enqueue_script(
-                'sod-error-handler',
-                plugin_dir_url(__FILE__) . 'sod-error-handler.js',
-                array('jquery'),
-                '1.0',
-                true
-            );
-
-            // Log that dependencies are loaded
-            error_log("SOD Fixes: jQuery UI dependencies loaded");
-        }
-    }
 
     
     /**
@@ -620,7 +590,7 @@ class SOD_Schedule_Display {
         $new_params = array_merge($current_params, $filter_params);
         
         // Build redirect URL
-        $redirect_url = add_query_arg($new_params, home_url('/schedule/'));
+        $redirect_url = add_query_arg($new_params, home_url('/'));
         
         // Redirect to filtered URL
         wp_safe_redirect($redirect_url);

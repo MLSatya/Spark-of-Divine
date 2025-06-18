@@ -1,0 +1,558 @@
+/**
+ * SOD Schedule Filter System CSS
+ * Styles for the filter sidebar, navigation, and loading states
+ */
+
+/* Filter Sidebar */
+.sod-filter-sidebar {
+    background: #f9f9f9;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sod-filter-sidebar h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Filter Groups */
+.filter-group {
+    margin-bottom: 15px;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #7c4dff;
+    box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.1);
+}
+
+.filter-select:hover {
+    border-color: #bbb;
+}
+
+/* Filter Actions */
+.filter-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-submit, .filter-clear {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: background 0.3s ease, transform 0.1s ease;
+    flex: 1;
+    min-width: 120px;
+}
+
+.filter-submit {
+    background: #7c4dff;
+    color: white;
+}
+
+.filter-submit:hover {
+    background: linear-gradient(135deg, var(--e-global-color-accent, #4C3400) 0%, var(--accent-color-2, #5D4500) 100%) !important;
+    transform: translateY(-1px);
+}
+
+.filter-submit:active {
+    transform: translateY(0);
+}
+
+.filter-clear {
+    background: #f44336;
+    color: white;
+}
+
+.filter-clear:hover {
+    background: #d32f2f;
+    transform: translateY(-1px);
+}
+
+.filter-clear:active {
+    transform: translateY(0);
+}
+
+/* View Selector */
+.view-selector {
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.view-selector label {
+    margin-right: 10px;
+    font-weight: 600;
+    color: #333;
+}
+
+.view-selector select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
+    font-weight: 500;
+    transition: border-color 0.3s ease;
+}
+
+.view-selector select:focus {
+    outline: none;
+    border-color: #7c4dff;
+    box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.1);
+}
+
+/* Calendar Navigation */
+.calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nav-button {
+    padding: 10px 20px;
+    background: #7c4dff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.nav-button:hover {
+    background: #6a3de8;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(124, 77, 255, 0.3);
+}
+
+.nav-button:active {
+    transform: translateY(0);
+}
+
+.nav-date-display {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    flex: 1;
+}
+
+/* Loading States */
+.sod-schedule-container.loading {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+}
+
+.sod-schedule-container.loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #7c4dff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+.sod-schedule-container.loading::after {
+    content: 'Loading schedule...';
+    position: absolute;
+    top: calc(50% + 40px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 600;
+    color: #7c4dff;
+    z-index: 1001;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* AJAX Loading States */
+    .sod-schedule-container.loading {
+        position: relative;
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    .sod-loading-overlay {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(255,255,255,0.9) !important;
+        z-index: 999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* Enhanced Day View Styling */
+    .day-slot-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background: #fff;
+        transition: all 0.3s ease;
+    }
+    
+    .day-slot-item:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #4CAF50;
+    }
+    
+    .slot-time-column {
+        flex: 0 0 120px;
+        margin-right: 20px;
+    }
+    
+    .slot-time {
+        font-weight: bold;
+        font-size: 18px;
+        color: #333;
+        background: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 6px;
+        display: inline-block;
+    }
+    
+    .slot-details-column {
+        flex: 1;
+        margin-right: 20px;
+    }
+    
+    .slot-service-title {
+        margin: 0 0 10px 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+    
+    .slot-service-title a {
+        color: #2c3e50;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .slot-service-title a:hover {
+        color: #4CAF50;
+    }
+    
+    .slot-meta {
+        color: #666;
+    }
+    
+    .slot-staff {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 500;
+    }
+    
+    .slot-description {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 6px;
+        border-left: 4px solid #4CAF50;
+    }
+    
+    .slot-description p {
+        margin: 0;
+        color: #555;
+        line-height: 1.5;
+    }
+    
+    .slot-booking-column {
+        flex: 0 0 200px;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .day-slot-item {
+            flex-direction: column;
+        }
+        
+        .slot-time-column,
+        .slot-details-column,
+        .slot-booking-column {
+            flex: none;
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+        
+        .slot-booking-column {
+            margin-bottom: 0;
+        }
+    }
+    
+    /* Smooth transitions for content updates */
+    .sod-schedule-container {
+        transition: opacity 0.15s ease-in-out;
+    }
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Form Loading States */
+.filter-submit.loading,
+.filter-clear.loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.filter-submit.loading::after,
+.filter-clear.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    transform: translate(-50%, -50%);
+}
+
+/* Error States */
+.filter-select.error {
+    border-color: #f44336;
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+.filter-error {
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+/* Success States */
+.filter-success {
+    color: #4caf50;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .sod-filter-sidebar {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .filter-actions {
+        flex-direction: column;
+    }
+    
+    .filter-submit, .filter-clear {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .calendar-nav {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        padding: 12px;
+    }
+    
+    .nav-date-display {
+        order: -1;
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    
+    .nav-button {
+        padding: 8px 16px;
+        font-size: 13px;
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .view-selector {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .view-selector label {
+        display: block;
+        margin-bottom: 8px;
+        margin-right: 0;
+    }
+    
+    .view-selector select {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sod-filter-sidebar h3 {
+        font-size: 16px;
+        text-align: center;
+    }
+    
+    .filter-group label {
+        font-size: 13px;
+    }
+    
+    .filter-select {
+        padding: 10px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .nav-date-display {
+        font-size: 16px;
+    }
+    
+    .nav-button {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+    .sod-filter-sidebar {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #fff;
+    }
+    
+    .sod-filter-sidebar h3 {
+        color: #fff;
+    }
+    
+    .filter-group label {
+        color: #ccc;
+    }
+    
+    .filter-select {
+        background: #333;
+        border-color: #555;
+        color: #fff;
+    }
+    
+    .filter-select:focus {
+        border-color: #7c4dff;
+    }
+    
+    .view-selector {
+        background: #2a2a2a;
+        border-color: #444;
+    }
+    
+    .view-selector label {
+        color: #fff;
+    }
+    
+    .view-selector select {
+        background: #333;
+        border-color: #555;
+        color: #fff;
+    }
+    
+    .calendar-nav {
+        background: #2a2a2a;
+    }
+    
+    .nav-date-display {
+        color: #fff;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .filter-select,
+    .view-selector select {
+        border-width: 2px;
+    }
+    
+    .nav-button {
+        border: 2px solid transparent;
+    }
+    
+    .nav-button:focus {
+        border-color: #fff;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .filter-submit,
+    .filter-clear,
+    .nav-button {
+        transition: none;
+    }
+    
+    .sod-schedule-container.loading::before {
+        animation: none;
+    }
+    
+    .filter-submit.loading::after,
+    .filter-clear.loading::after {
+        animation: none;
+    }
+}

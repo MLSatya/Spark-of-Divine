@@ -40,7 +40,7 @@ class SOD_Team_Dashboard {
         add_action('init', array($this, 'add_team_endpoints'));
         
         // Add rewrite rules for team dashboard pages
-        add_action('init', array($this, 'add_team_rewrite_rules'));
+        /*add_action('init', array($this, 'add_team_rewrite_rules'));*/
         add_action('template_redirect', array($this, 'handle_team_dashboard_page'));
         
         // Register shortcode
@@ -99,7 +99,6 @@ class SOD_Team_Dashboard {
     
     /**
      * Add rewrite rules for team dashboard pages
-     */
     public function add_team_rewrite_rules() {
         // Main dashboard page
         add_rewrite_rule(
@@ -163,6 +162,7 @@ class SOD_Team_Dashboard {
             update_option('sod_flush_team_rewrite_rules', 'no');
         }
     }
+    */
     
     /**
      * Handle team dashboard page templates

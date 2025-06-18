@@ -3,7 +3,7 @@
  * SOD Booking Validator
  * 
  * Validates booking requests and handles booking conflicts.
- * Fixed to remove testing code from production.
+ * Fixed to include the missing validate_booking_request method.
  */
 
 if (!defined('ABSPATH')) {
@@ -27,6 +27,45 @@ class SOD_Booking_Validator {
             self::$instance = new self();
         }
         return self::$instance;
+    }
+    
+    /**
+     * Validate a booking request (compatibility method for booking handler)
+     * 
+     * @param null $unused Legacy parameter
+     * @param int $product_id Product ID
+     * @param int $staff_id Staff ID
+     * @param string $datetime Date and time
+     * @param array $attribute_data Attribute data
+     * @param int $duration Duration in minutes
+     * @return array Validation result with 'valid' and optionally 'message' keys
+     */
+    public function validate_booking_request($unused, $product_id, $staff_id, $datetime, $attribute_data, $duration = 60) {
+        // Convert parameters to the format expected by validate_booking
+        $booking_data = array(
+            'product_id' => $product_id,
+            'staff_id' => $staff_id,
+            'date' => date('Y-m-d', strtotime($datetime)),
+            'time' => date('H:i', strtotime($datetime)),
+            'duration' => $duration
+        );
+        
+        // Call the existing validation method
+        $result = $this->validate_booking($booking_data);
+        
+        // Convert the result to the expected format
+        if ($result === true) {
+            return array('valid' => true, 'message' => 'Booking is valid');
+        } elseif (is_array($result) && isset($result['valid']) && !$result['valid']) {
+            // Extract error message
+            $message = isset($result['errors']) && is_array($result['errors']) 
+                ? implode(' ', $result['errors']) 
+                : 'This time slot is not available.';
+            return array('valid' => false, 'message' => $message);
+        } else {
+            // Unknown result format, assume invalid
+            return array('valid' => false, 'message' => 'Validation failed');
+        }
     }
     
     /**
@@ -110,24 +149,35 @@ class SOD_Booking_Validator {
         // Check if the booking table exists
         $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
         if (!$table_exists) {
-            // If table doesn't exist, assume available (likely during setup)
-            return array(
-                'available' => true,
-                'conflicting_bookings' => array()
-            );
+            // Try fallback table name
+            $table_name = 'wp_3be9vb_sod_bookings';
+            $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
+            
+            if (!$table_exists) {
+                // If table doesn't exist, assume available (likely during setup)
+                return array(
+                    'available' => true,
+                    'conflicting_bookings' => array()
+                );
+            }
         }
         
-        // Check for conflicting bookings
+        // Check for conflicting bookings - using date/time columns separately
         $query = $wpdb->prepare(
             "SELECT * FROM $table_name 
             WHERE staff_id = %d 
+            AND date = %s
             AND (
                 (start_time <= %s AND end_time > %s) OR 
                 (start_time < %s AND end_time >= %s) OR
                 (start_time >= %s AND start_time < %s)
             )
-            AND status != 'cancelled'",
-            $staff_id, $end_time, $start_time, $end_time, $start_time, $start_time, $end_time
+            AND status NOT IN ('cancelled', 'no_show')",
+            $staff_id, 
+            $date,
+            $time, $time,
+            date('H:i:s', strtotime($end_time)), date('H:i:s', strtotime($end_time)),
+            $time, date('H:i:s', strtotime($end_time))
         );
         
         $conflicting_bookings = $wpdb->get_results($query);

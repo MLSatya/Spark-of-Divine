@@ -562,8 +562,15 @@ class SOD_Staff_Availability_Form {
                                 <td class="date-day">
                                     <?php 
                                     if (!empty($slot->date)) {
-                                        echo esc_html(date('M j, Y', strtotime($slot->date)));
+                                        // Show the date
+                                        $date_display = date('M j, Y', strtotime($slot->date));
+                                        // Get the day of week
+                                        $day_of_week = date('l', strtotime($slot->date));
+                                        // Display date with day underneath
+                                        echo esc_html($date_display);
+                                        echo '<br><small style="color: #666; font-size: 0.85em;">(' . esc_html($day_of_week) . ')</small>';
                                     } else {
+                                        // For recurring slots, just show the day of week as before
                                         echo esc_html($slot->day_of_week);
                                         if ($slot->recurring_type === 'monthly' && !empty($slot->monthly_occurrence) && !empty($slot->monthly_day)) {
                                             echo ' (' . esc_html($slot->monthly_occurrence . ' ' . $slot->monthly_day) . ')';
@@ -588,7 +595,19 @@ class SOD_Staff_Availability_Form {
                                     ?>
                                 </td>
                                 <td class="recurring-end">
-                                    <?php echo !empty($slot->recurring_end_date) ? esc_html(date('M j, Y', strtotime($slot->recurring_end_date))) : '—'; ?>
+                                    <?php 
+                                    if (!empty($slot->recurring_end_date)) {
+                                        // Show the recurring end date
+                                        $end_date_display = date('M j, Y', strtotime($slot->recurring_end_date));
+                                        // Get the day of week for the end date
+                                        $end_day_of_week = date('l', strtotime($slot->recurring_end_date));
+                                        // Display end date with day underneath
+                                        echo esc_html($end_date_display);
+                                        echo '<br><small style="color: #666; font-size: 0.85em;">(' . esc_html($end_day_of_week) . ')</small>';
+                                    } else {
+                                        echo '—';
+                                    }
+                                    ?>
                                 </td>
                                 <td class="booking-type">
                                     <?php echo $slot->appointment_only ? __('By Appointment', 'spark-of-divine-scheduler') : __('Regular', 'spark-of-divine-scheduler'); ?>

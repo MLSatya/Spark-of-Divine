@@ -1,0 +1,678 @@
+/* ===============================
+   SPARK OF DIVINE - CONSOLIDATED SCHEDULE CSS
+   Single unified stylesheet - no conflicts
+   FIXED VERSION
+   =============================== */
+
+/* Global Colors based on your design */
+:root {
+    --e-global-color-primary: #000000;
+    --e-global-color-secondary: #333333;
+    --e-global-color-text: #000;
+    --e-global-color-accent: #4C3400;
+    --accent-color-2: #5D4500;
+    --background-light: #F5F5F5;
+    --border-color: #CCCCCC;
+    --super-light-brown: #EEE5D6;
+    --slot-background: var(--super-light-brown);
+    --gold: #DDB600;
+    --orange: #E29100;
+    --event-bg-color: #FFDBAF;
+    --event-border-color: #E29100;
+}
+
+/* ===============================
+   BASE STYLES
+   =============================== */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.sod-schedule-container {
+    padding: 10px;
+    margin-bottom: 10px;
+    overflow: visible !important;
+    position: relative;
+}
+
+/* ===============================
+   NAVIGATION
+   =============================== */
+.calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
+}
+
+.calendar-nav h2 {
+    margin: 0;
+    font-size: 1.2em;
+    color: var(--e-global-color-primary);
+    text-align: center;
+    flex-grow: 1;
+}
+
+.nav-button {
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: var(--e-global-color-accent);
+    color: #ffffff !important;
+    border: 1px solid var(--e-global-color-accent);
+    border-radius: 3px;
+    text-decoration: none !important;
+    transition: background-color 0.3s;
+}
+
+.nav-button:hover {
+    background-color: var(--accent-color-2);
+    color: #ffffff !important;
+}
+
+/* ===============================
+   VIEW SELECTOR
+   =============================== */
+.view-selector {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: var(--background-light);
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.view-selector label {
+    margin-right: 10px;
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--e-global-color-text);
+}
+
+.view-selector select {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background-color: white;
+    font-size: 12px;
+    color: var(--e-global-color-text);
+}
+
+/* ===============================
+   FILTER SIDEBAR
+   =============================== */
+.sod-filter-sidebar {
+    background-color: var(--background-light);
+    padding: 10px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+    width: 100%;
+}
+
+.sod-filter-sidebar h3 {
+    margin-top: 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.1em;
+    color: var(--e-global-color-primary);
+}
+
+.sod-filter-sidebar label {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 500;
+    color: var(--e-global-color-text);
+    font-size: 12px;
+}
+
+.sod-filter-sidebar select {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background-color: white;
+    font-size: 12px;
+}
+
+.sod-filter-sidebar input[type="submit"] {
+    width: 100%;
+    padding: 6px;
+    background-color: var(--e-global-color-accent);
+    color: white;
+    border: 1px solid var(--e-global-color-accent);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s;
+}
+
+.sod-filter-sidebar input[type="submit"]:hover {
+    background-color: var(--accent-color-2);
+}
+
+/* ===============================
+   WEEK VIEW
+   =============================== */
+.view-week {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.view-week .calendar-wrapper {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(140px, 1fr)); /* Increased min-width */
+    gap: 0;
+    width: 100%;
+    min-width: 980px; /* 7 columns × 140px minimum */
+}
+
+.view-week .calendar-header {
+    display: contents;
+}
+
+.view-week .calendar-header a.calendar-cell {
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 6px 2px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--e-global-color-text);
+    text-decoration: none;
+    background-color: var(--background-light);
+    height: 35px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.view-week .calendar-header a.calendar-cell:hover {
+    background-color: var(--super-light-brown);
+}
+
+.view-week .calendar-body {
+    display: contents;
+}
+
+.view-week .calendar-cell {
+    border: 1px solid var(--border-color);
+    border-top: none;
+    padding: 5px; /* Increased padding */
+    background: white;
+    min-height: 180px; /* Increased min-height */
+    overflow: visible !important;
+    position: relative;
+    min-width: 0;
+}
+
+.view-week .calendar-cell.weekend {
+    background-color: #F9F9F9;
+}
+
+.view-week .day-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Increased gap */
+}
+
+/* Schedule Slots */
+.schedule-slot {
+    background: var(--slot-background);
+    border: 1px solid #000;
+    border-radius: 3px;
+    padding: 8px; /* Increased padding */
+    font-size: 10px;
+    overflow: visible !important;
+    position: relative;
+    margin-bottom: 5px; /* Increased margin */
+}
+
+.schedule-slot.yoga-class {
+    background-color: var(--super-light-brown);
+}
+
+/* Event category slots - Special styling */
+.schedule-slot.event-slot,
+.day-slot-item.event-slot {
+    background-color: var(--event-bg-color) !important;
+    border: 2px solid var(--event-border-color) !important;
+    position: relative;
+}
+
+/* Add "EVENT" badge */
+.schedule-slot.event-slot::before,
+.day-slot-item.event-slot::before {
+    content: "EVENT";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 8px;
+    font-weight: bold;
+    background-color: var(--event-border-color);
+    color: white;
+    padding: 1px 3px;
+    border-radius: 2px;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+/* Appointment-only slots - Enhanced visibility */
+.schedule-slot.appointment-only,
+.day-slot-item.appointment-only {
+    background-color: #F2D5C4 !important;
+    border: 2px solid #E8B9A0 !important;
+    position: relative;
+}
+
+/* Add "Appointment Only" badge */
+.schedule-slot.appointment-only::after,
+.day-slot-item.appointment-only::after {
+    content: "APPT ONLY";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 8px;
+    font-weight: bold;
+    background-color: #E8B9A0;
+    color: #4C3400;
+    padding: 1px 3px;
+    border-radius: 2px;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+/* For day view, adjust badge positions */
+.day-slot-item.event-slot::before,
+.day-slot-item.appointment-only::after {
+    top: 10px;
+    right: 10px;
+    font-size: 9px;
+    padding: 2px 5px;
+}
+
+.slot-info {
+    margin-bottom: 5px; /* Increased margin */
+    font-size: 10px;
+    line-height: 1.3; /* Increased line height */
+    color: #000;
+    word-break: break-word;
+}
+
+.slot-service-title {
+    color: var(--e-global-color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 11px; /* Slightly larger */
+    display: block;
+    margin-bottom: 3px;
+}
+
+.slot-service-title:hover {
+    text-decoration: underline;
+}
+
+/* ===============================
+   BOOKING FORMS - FIXED
+   =============================== */
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px; /* Increased gap */
+    margin-top: 8px; /* Increased margin */
+}
+
+.booking-form-row {
+    width: 100%;
+    position: relative; /* For z-index management */
+}
+
+/* Dropdowns - Fixed for visibility */
+.attribute-select,
+select[name="timeslot"] {
+    width: 100%;
+    max-width: 100%;
+    padding: 8px 32px 8px 10px; /* Fixed padding - more space on right for arrow */
+    font-size: 12px; /* Increased font size for better readability */
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background-color: white;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="0,0 8,0 4,4" fill="%23333"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center; /* Adjusted arrow position */
+    background-size: 8px;
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Show ellipsis for long text */
+    min-height: 32px; /* Increased minimum height */
+    line-height: 1.4; /* Better line height */
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    /* NO min-width to prevent bleeding */
+}
+
+/* Ensure option text is visible */
+.attribute-select option,
+select[name="timeslot"] option {
+    padding: 4px;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.attribute-select:focus,
+select[name="timeslot"]:focus {
+    outline: none;
+    border-color: var(--e-global-color-accent);
+    box-shadow: 0 0 0 2px rgba(76, 52, 0, 0.2);
+    z-index: 10; /* Bring to front when focused */
+}
+
+/* Book button */
+.book-now {
+    width: 100%;
+    padding: 6px; /* Increased padding */
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background-color: var(--e-global-color-accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 4px; /* Add some space above button */
+}
+
+.book-now:hover {
+    background-color: var(--accent-color-2);
+    transform: translateY(-1px);
+}
+
+.book-now:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ===============================
+   DAY VIEW
+   =============================== */
+.day-view-list {
+    background-color: white;
+    width: 100%;
+}
+
+.day-header {
+    background-color: var(--background-light);
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.day-header h3 {
+    margin: 0;
+    color: var(--e-global-color-primary);
+    font-size: 1.3em;
+}
+
+.day-slots-list {
+    padding: 0;
+}
+
+.day-slot-item {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px;
+    transition: background-color 0.2s;
+    overflow: visible !important;
+}
+
+.day-slot-item:hover {
+    background-color: #f9f9f9;
+}
+
+.slot-time-column {
+    width: 15%;
+    padding-right: 15px;
+}
+
+.slot-details-column {
+    flex: 1;
+    padding-right: 15px;
+}
+
+.slot-booking-column {
+    width: 300px; /* Increased width */
+}
+
+.slot-time {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: var(--e-global-color-accent);
+    display: block;
+}
+
+.slot-service-title {
+    margin: 0 0 5px 0;
+    font-size: 1.2em;
+}
+
+.slot-meta {
+    font-size: 0.9em;
+    color: var(--e-global-color-secondary);
+}
+
+.slot-description {
+    margin-top: 10px;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+/* Day view forms */
+.day-slot-item .booking-form {
+    gap: 8px;
+}
+
+.day-slot-item .attribute-select,
+.day-slot-item select[name="timeslot"] {
+    padding: 10px 30px 10px 12px; /* Increased padding */
+    font-size: 13px;
+    min-height: 36px; /* Ensure proper height */
+    /* NO min-width to prevent overflow */
+}
+
+.day-slot-item .book-now {
+    padding: 10px;
+    font-size: 13px;
+}
+
+/* ===============================
+   MOBILE VIEW
+   =============================== */
+.mobile-view {
+    display: none;
+}
+
+.mobile-day-section {
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: white;
+}
+
+.mobile-day-label {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 12px;
+    background-color: var(--background-light);
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.mobile-day-slots {
+    padding: 10px;
+}
+
+.mobile-day-slots .schedule-slot {
+    margin-bottom: 10px;
+}
+
+/* ===============================
+   RESPONSIVE
+   =============================== */
+@media (max-width: 767px) {
+    .desktop-view {
+        display: none !important;
+    }
+    
+    .mobile-view {
+        display: block !important;
+    }
+    
+    .calendar-nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .day-slot-item {
+        flex-direction: column;
+    }
+    
+    .slot-time-column,
+    .slot-details-column,
+    .slot-booking-column {
+        width: 100%;
+        padding-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    /* Mobile form adjustments */
+    .attribute-select,
+    select[name="timeslot"],
+    .book-now {
+        padding: 12px !important;
+        font-size: 16px !important;
+    }
+}
+
+/* ===============================
+   SPECIAL STATES
+   =============================== */
+.no-slots {
+    text-align: center;
+    padding: 20px;
+    color: var(--e-global-color-secondary);
+    font-style: italic;
+}
+
+/* Loading state */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Success/Error messages */
+.booking-success {
+    padding: 10px;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    border-radius: 3px;
+    margin-top: 10px;
+}
+
+.booking-error {
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    border-radius: 3px;
+    margin-top: 10px;
+}
+
+/* ===============================
+   DROPDOWN OVERFLOW FIX
+   =============================== */
+/* Comprehensive dropdown styling to prevent overflow */
+.view-week .attribute-select,
+.day-slot-item .attribute-select,
+.view-week select[name="timeslot"],
+.day-slot-item select[name="timeslot"],
+.mobile-day-section select,
+.sod-filter-sidebar select {
+    position: relative !important;
+    z-index: 1001 !important;
+    overflow: hidden !important; /* Hide overflow to prevent bleeding */
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important; /* Show ellipsis for long text */
+    /* NO min-width - this causes the bleeding issue */
+    max-width: 100% !important; /* Constrain to parent width */
+    width: 100% !important; /* Full width of container */
+    padding: 8px 24px 8px 12px !important;
+    font-size: 13px !important;
+    border: 1px solid var(--border-color, #CCCCCC) !important;
+    border-radius: 4px !important;
+    background-color: white !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,0 5,5" fill="%23333"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 8px center !important;
+    background-size: 10px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    box-sizing: border-box !important; /* Include padding in width calculation */
+}
+
+/* Ensure containers don't overflow */
+.schedule-slot,
+.day-slot-item,
+.booking-form-row {
+    overflow: hidden !important; /* Prevent child elements from bleeding out */
+    position: relative !important;
+}
+
+/* Calendar cells should contain their content */
+.calendar-cell {
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+/* Make sure parent containers stay within bounds */
+.day-slots {
+    overflow: hidden !important;
+}
+
+/* Ensure select dropdowns can expand their option list when clicked */
+select:focus {
+    position: relative;
+    z-index: 100;
+}
+
+/* Fix for long option text */
+@supports (-webkit-appearance: none) {
+    .attribute-select,
+    select[name="timeslot"] {
+        /* For Safari/Chrome */
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* Firefox specific fix */
+@-moz-document url-prefix() {
+    .attribute-select,
+    select[name="timeslot"] {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding-right: 28px;
+    }
+}

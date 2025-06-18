@@ -75,7 +75,7 @@ class SOD_Plugin_Initializer {
         register_deactivation_hook(__FILE__, [$this, 'deactivate_plugin']);
     }
 
-    /**
+   /**
      * Ensure required plugin directories and files exist
      */
     public function initialize_plugin_structure() {
@@ -85,12 +85,13 @@ class SOD_Plugin_Initializer {
             'includes' => SOD_PLUGIN_PATH . 'includes',
             'includes/core' => SOD_PLUGIN_PATH . 'includes/core',
             'includes/core/main' => SOD_PLUGIN_PATH . 'includes/core/main',
+            'includes/core/handlers' => SOD_PLUGIN_PATH . 'includes/core/handlers',
             'includes/dashboards' => SOD_PLUGIN_PATH . 'includes/dashboards',
             'templates/staff' => SOD_PLUGIN_PATH . 'templates/staff',
             'assets/js' => SOD_PLUGIN_PATH . 'assets/js',
             'assets/css' => SOD_PLUGIN_PATH . 'assets/css',
         ];
-        
+
         foreach ($dirs as $name => $path) {
             if (!file_exists($path) || !is_dir($path)) {
                 if (wp_mkdir_p($path)) {
@@ -100,87 +101,36 @@ class SOD_Plugin_Initializer {
                 }
             }
         }
-        
-        // Create helper functions file if it doesn't exist
-        $this->create_helper_functions_file();
-    }
 
-    /**
-     * Create helper functions file
-     */
-    private function create_helper_functions_file() {
+        // Include helper functions with error checking
         $helper_file = SOD_PLUGIN_PATH . 'includes/helper-functions.php';
-        if (!file_exists($helper_file)) {
-            $helper_content = '<?php
-/**
- * Helper functions for the Spark of Divine Scheduler
- */
-
-if (!defined(\'ABSPATH\')) {
-    exit;
-}
-
-/**
- * Map service ID to product ID (for backward compatibility)
- */
-function map_service_to_product($service_id) {
-    global $wpdb;
-
-    if (empty($service_id)) {
-        return 0;
-    }
-
-    // Query the staff availability table to find the product linked to this service
-    $product_id = $wpdb->get_var($wpdb->prepare(
-        "SELECT product_id FROM {$wpdb->prefix}sod_staff_availability WHERE service_id = %d LIMIT 1",
-        $service_id
-    ));
-
-    // Check alternate table name if the standard one doesn\'t exist
-    if ($wpdb->last_error) {
-        $alternate_table = \'wp_3be9vb_sod_staff_availability\';
-        $product_id = $wpdb->get_var($wpdb->prepare(
-            "SELECT product_id FROM {$alternate_table} WHERE service_id = %d LIMIT 1",
-            $service_id
-        ));
-    }
-
-    return $product_id ? intval($product_id) : 0;
-}
-
-/**
- * Get current user\'s staff ID if they are a staff member
- */
-function sod_get_current_staff_id() {
-    $user_id = get_current_user_id();
-    if (!$user_id) return 0;
-    
-    global $wpdb;
-    $staff_id = $wpdb->get_var($wpdb->prepare(
-        "SELECT staff_id FROM {$wpdb->prefix}sod_staff WHERE user_id = %d",
-        $user_id
-    ));
-    
-    return $staff_id ? intval($staff_id) : 0;
-}
-
-/**
- * Check if current user is a staff member
- */
-function sod_is_current_user_staff() {
-    return sod_get_current_staff_id() > 0;
-}';
-
-            if (file_put_contents($helper_file, $helper_content)) {
-                sod_debug_log("Created helper functions file", "Init");
-            } else {
-                sod_log_error("Failed to create helper functions file", "Init");
-            }
-        }
-        
-        // Include the helper functions
         if (file_exists($helper_file)) {
             require_once $helper_file;
+            sod_debug_log("Helper functions loaded successfully", "Init");
+        } else {
+            sod_log_error("Helper functions file not found: " . $helper_file, "Init");
+
+            // Create basic helper functions inline as fallback
+            if (!function_exists('sod_get_current_staff_id')) {
+                function sod_get_current_staff_id() {
+                    $user_id = get_current_user_id();
+                    if (!$user_id) return 0;
+
+                    global $wpdb;
+                    $staff_id = $wpdb->get_var($wpdb->prepare(
+                        "SELECT staff_id FROM {$wpdb->prefix}sod_staff WHERE user_id = %d",
+                        $user_id
+                    ));
+
+                    return $staff_id ? intval($staff_id) : 0;
+                }
+            }
+
+            if (!function_exists('sod_is_current_user_staff')) {
+                function sod_is_current_user_staff() {
+                    return sod_get_current_staff_id() > 0;
+                }
+            }
         }
     }
 
@@ -206,8 +156,9 @@ function sod_is_current_user_staff() {
             // Load components in the correct order
             $this->load_database_access();
             $this->load_core_classes();
+            $this->load_filter_handler();
             $this->load_handler_classes();
-            $this->load_enhanced_features(); // NEW: Load enhanced booking features
+            $this->load_enhanced_features();
             $this->load_integration_classes();
             $this->load_post_type_classes();
             $this->load_taxonomy_classes();
@@ -257,6 +208,21 @@ function sod_is_current_user_staff() {
             $this->components['booking_sync'] = SOD_Booking_Sync::getInstance();
             $GLOBALS['sod_booking_sync'] = $this->components['booking_sync'];
             sod_debug_log("Booking sync loaded", "Plugin");
+        }
+    }
+
+    /**
+     * Load filter handler - NEW METHOD
+     */
+    private function load_filter_handler() {
+        $file = SOD_PLUGIN_PATH . 'includes/core/handlers/class-sod-schedule-filter-handler.php';
+        if (file_exists($file)) {
+            require_once $file;
+            $this->components['filter_handler'] = SOD_Schedule_Filter_Handler::get_instance();
+            $GLOBALS['sod_filter_handler'] = $this->components['filter_handler'];
+            sod_debug_log("Filter handler loaded", "Plugin");
+        } else {
+            sod_log_error("Filter handler file not found: " . $file, "Plugin");
         }
     }
 
@@ -316,7 +282,7 @@ function sod_is_current_user_staff() {
     }
 
     /**
-     * Load enhanced booking features - NEW!
+     * Load enhanced booking features
      */
     private function load_enhanced_features() {
         $enhanced_file = SOD_PLUGIN_PATH . 'includes/core/handlers/class-sod-enhanced-integration.php';
@@ -580,26 +546,29 @@ function sod_is_current_user_staff() {
         $assets = [
             'js' => [
                 'sod-booking-form' => 'sod-booking-form.js',
-                'sod-enhanced-integration' => 'sod-enhanced-integration.js', // NEW: Enhanced features
+                'sod-enhanced-integration' => 'sod-enhanced-integration.js',
                 'sod-schedule' => 'sod-schedule.js',
                 'sod-cart-checkout' => 'sod-cart-checkout.js',
                 'sod-product-integration' => 'sod-product-integration.js',
-                // Add other JS files as needed
+                'staff-availability' => 'staff-availability.js',
+                'sod-filter-fix' => 'sod-filter-fix.js',
+                'sod-filter-debug' => 'sod-filter-debug.js',
             ],
             'css' => [
+                'sod-filter' => 'sod-filter.css', // ADD FILTER CSS
                 'sod-booking-form' => 'sod-booking-form.css',
                 'sod-enhanced-booking' => 'sod-enhanced-booking.css',
-                'sod-ui' => 'sod-ui.css',
+                'sod-schedule-style' => 'sod-schedule-style.css',
                 'sod-cart-checkout' => 'sod-cart-checkout.css',
                 'sod-product-integration' => 'sod-product-integration.css',
-                
+                'staff-availability' => 'staff-availability.css',
             ]
         ];
 
         // JavaScript dependencies
         $js_deps = [
             'sod-booking-form' => ['jquery'],
-            'sod-enhanced-integration' => ['jquery', 'sod-booking-form'], // Depends on base booking form
+            'sod-enhanced-integration' => ['jquery', 'sod-booking-form'],
             'sod-schedule' => ['jquery', 'sod-booking-form'],
             'sod-cart-checkout' => ['jquery'],
             'sod-product-integration' => ['jquery'],
@@ -631,37 +600,67 @@ function sod_is_current_user_staff() {
      */
     private function should_load_booking_assets() {
         global $post;
-        
-        // Load on pages with booking shortcodes
-        if ($post && (
-            has_shortcode($post->post_content, 'sod_booking_form') ||
-            has_shortcode($post->post_content, 'sod_schedule') ||
-            strpos($post->post_content, 'sod-booking') !== false
-        )) {
+
+        // Always load on front page (since that's where the schedule is)
+        if (is_front_page()) {
             return true;
         }
-        
-        // Load on booking-related pages
-        if (is_page() && $post) {
-            $template = get_page_template_slug($post);
-            if (strpos($template, 'booking') !== false || 
-                strpos($template, 'schedule') !== false) {
+
+        // Load if any filter parameters are present
+        if (isset($_GET['view']) || isset($_GET['date']) || 
+            isset($_GET['product']) || isset($_GET['service']) ||
+            isset($_GET['staff']) || isset($_GET['category'])) {
+            return true;
+        }
+
+        // Check URL first (doesn't depend on $post)
+        $current_url = $_SERVER['REQUEST_URI'] ?? '';
+        if (strpos($current_url, 'staff-availability') !== false || 
+            strpos($current_url, 'booking') !== false ||
+            strpos($current_url, 'schedule') !== false) {
+            return true;
+        }
+
+        // Load on pages with booking shortcodes
+        if ($post && !empty($post->post_content)) {
+            if (has_shortcode($post->post_content, 'sod_booking_form') ||
+                has_shortcode($post->post_content, 'sod_schedule') ||
+                has_shortcode($post->post_content, 'sod_staff_availability_form') ||
+                strpos($post->post_content, 'sod-booking') !== false) {
                 return true;
             }
         }
-        
-        // Load on cart/checkout pages
-        if (is_cart() || is_checkout()) {
+
+        // Check if it's the staff availability page by slug
+        if (is_page('staff-availability')) {
             return true;
         }
-        
+
+        // Load on booking-related pages
+        if (is_page() && $post) {
+            $template = get_page_template_slug($post);
+            if ($template && (strpos($template, 'booking') !== false || 
+                strpos($template, 'schedule') !== false ||
+                strpos($template, 'staff') !== false)) {
+                return true;
+            }
+        }
+
+        // Load on cart/checkout pages
+        if (function_exists('is_cart') && (is_cart() || is_checkout())) {
+            return true;
+        }
+
         return false;
     }
 
     /**
-     * Localize scripts with data
+     * Localize scripts with data - UPDATED WITH FILTER SUPPORT
      */
-    private function localize_scripts() {
+     private function localize_scripts() {
+        // Get filter handler instance
+        $filter_handler = isset($this->components['filter_handler']) ? $this->components['filter_handler'] : null;
+
         // Basic booking data
         wp_localize_script('sod-booking-form', 'sodBooking', [
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -675,7 +674,7 @@ function sod_is_current_user_staff() {
             ]
         ]);
 
-        // Enhanced booking data (NEW)
+        // Enhanced booking data
         wp_localize_script('sod-enhanced-integration', 'sodEnhanced', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('sod_booking_nonce'),
@@ -689,18 +688,96 @@ function sod_is_current_user_staff() {
             ]
         ]);
 
-        // Schedule data
+        // Schedule and filter data - CONSISTENT NONCE NAMES
+        $current_filters = $filter_handler ? $filter_handler->get_filters() : [
+            'view' => isset($_GET['view']) ? sanitize_text_field($_GET['view']) : 'week',
+            'date' => isset($_GET['date']) ? sanitize_text_field($_GET['date']) : date('Y-m-d'),
+            'product' => isset($_GET['product']) ? intval($_GET['product']) : 0,
+            'staff' => isset($_GET['staff']) ? intval($_GET['staff']) : 0,
+            'category' => isset($_GET['category']) ? intval($_GET['category']) : 0,
+        ];
+
         wp_localize_script('sod-schedule', 'sodSchedule', [
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('sod_schedule_nonce'),
-            'currentView' => isset($_GET['view']) ? sanitize_text_field($_GET['view']) : 'week',
-            'currentDate' => isset($_GET['date']) ? sanitize_text_field($_GET['date']) : date('Y-m-d'),
-            'filters' => [
-                'service' => isset($_GET['service']) ? intval($_GET['service']) : 0,
-                'staff' => isset($_GET['staff']) ? intval($_GET['staff']) : 0,
-                'category' => isset($_GET['category']) ? intval($_GET['category']) : 0,
+            'nonce' => wp_create_nonce('sod_booking_nonce'),
+            'filter_nonce' => wp_create_nonce('sod_filter_nonce'),
+            'base_url' => home_url('/'),
+            'currentFilters' => $current_filters,
+            'strings' => [
+                'loading' => __('Loading schedule...', 'spark-of-divine-scheduler'),
+                'error' => __('Error loading schedule', 'spark-of-divine-scheduler'),
+                'noResults' => __('No results found', 'spark-of-divine-scheduler')
             ]
         ]);
+
+        // Localize staff-availability script if it's enqueued - UPDATED TO USE DATABASE
+        if (wp_script_is('staff-availability', 'enqueued')) {
+            global $wpdb;
+            
+            // Get products for the dropdown (unchanged)
+            $products = [];
+            $product_query = new WP_Query([
+                'post_type' => 'product',
+                'posts_per_page' => -1,
+                'post_status' => 'publish'
+            ]);
+
+            if ($product_query->have_posts()) {
+                while ($product_query->have_posts()) {
+                    $product_query->the_post();
+                    $products[] = [
+                        'id' => get_the_ID(),
+                        'title' => get_the_title()
+                    ];
+                }
+                wp_reset_postdata();
+            }
+
+            // Get staff names from DATABASE table (not WordPress posts)
+            $staff_names = [];
+            $staff_table = $wpdb->prefix . 'sod_staff';
+            
+            $staff_results = $wpdb->get_results("
+                SELECT s.staff_id, s.user_id, s.name 
+                FROM {$staff_table} s 
+                WHERE s.name IS NOT NULL 
+                AND s.name != '' 
+                ORDER BY s.name ASC
+            ");
+            
+            if ($staff_results) {
+                foreach ($staff_results as $staff) {
+                    // Skip if no user_id (invalid staff record)
+                    if (!$staff->user_id) {
+                        continue;
+                    }
+                    
+                    // Get WordPress user to check roles
+                    $user = get_user_by('ID', $staff->user_id);
+                    
+                    // Skip if user has admin or shop manager role
+                    if ($user && (
+                        in_array('administrator', $user->roles) || 
+                        in_array('shop_manager', $user->roles)
+                    )) {
+                        error_log("SOD: Skipping admin/shop manager in availability: " . $staff->name);
+                        continue;
+                    }
+                    
+                    // Use staff name from database
+                    $staff_names[$staff->staff_id] = $staff->name;
+                }
+            }
+            
+            error_log("SOD: Localized " . count($staff_names) . " staff members for availability script");
+
+            wp_localize_script('staff-availability', 'sodAvailability', [
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('sod_availability_nonce_action'),
+                'products' => $products,
+                'staff_names' => $staff_names
+            ]);
+        }
     }
 
     /**
@@ -749,79 +826,306 @@ function sod_is_current_user_staff() {
         echo '<div class="error"><p>' . esc_html__('Spark of Divine Scheduler encountered an error during initialization. Please check the error log.', 'spark-of-divine-scheduler') . '</p></div>';
     }
 }
-
-/**
- * Helper Functions
- */
-
-/**
- * Get a Schedule Display instance
- */
-function sod_get_schedule_display($view = 'week', $date = '', $service = 0, $staff = 0, $category = 0) {
-    if (!class_exists('SOD_Schedule_Display')) {
-        $file = SOD_PLUGIN_PATH . 'includes/core/main/class-sod-schedule-display.php';
-        if (file_exists($file)) {
-            require_once $file;
-        } else {
-            sod_log_error("Unable to load SOD_Schedule_Display class file", "Schedule");
-            return null;
-        }
-    }
-    
-    if (empty($date)) {
-        $date = date('Y-m-d');
-    }
-    
-    if (class_exists('SOD_Schedule_Display')) {
-        return new SOD_Schedule_Display($view, $date, $service, $staff, $category);
-    }
-    
-    return null;
-}
-
-/**
- * Schedule shortcode
- */
-function sod_schedule_shortcode($atts) {
-    $atts = shortcode_atts(array(
-        'view' => 'week',
-        'date' => date('Y-m-d'),
-        'product' => 0,
-        'service' => 0,
-        'staff' => 0,
-        'category' => 0
-    ), $atts);
-    
-    ob_start();
-    
-    // Get filters
-    $service_filter = !empty($atts['product']) ? intval($atts['product']) : intval($atts['service']);
-    $staff_filter = intval($atts['staff']);
-    $category_filter = intval($atts['category']);
-    
-    // Set globals for backward compatibility
-    $GLOBALS['sod_customer_view'] = true;
-    $GLOBALS['sod_schedule_view'] = $atts['view'];
-    $GLOBALS['sod_schedule_date'] = $atts['date'];
-    $GLOBALS['sod_service_filter'] = $service_filter;
-    $GLOBALS['sod_staff_filter'] = $staff_filter;
-    $GLOBALS['sod_category_filter'] = $category_filter;
-    
-    // Try to use the SOD_Schedule_Display class
-    $schedule = sod_get_schedule_display($atts['view'], $atts['date'], $service_filter, $staff_filter, $category_filter);
-    
-    if ($schedule) {
-        $schedule->render();
-    } else {
-        echo '<p>Schedule not available. Please contact support.</p>';
-        sod_log_error("Schedule display could not be loaded", "Shortcode");
-    }
-    
-    return ob_get_clean();
-}
-add_shortcode('sod_schedule', 'sod_schedule_shortcode');
-
 /**
  * Initialize the plugin
  */
 SOD_Plugin_Initializer::get_instance();
+
+
+    /**
+     * Helper Functions
+     */
+
+    /**
+     * Get filter handler instance
+     */
+    function sod_get_filter_handler() {
+        global $sod_filter_handler;
+
+        if (isset($sod_filter_handler)) {
+            return $sod_filter_handler;
+        }
+
+        // Try to get from plugin components
+        $plugin = SOD_Plugin_Initializer::get_instance();
+        if (isset($plugin->components['filter_handler'])) {
+            return $plugin->components['filter_handler'];
+        }
+
+        // Fallback: try to instantiate
+        if (class_exists('SOD_Schedule_Filter_Handler')) {
+            return SOD_Schedule_Filter_Handler::get_instance();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get a Schedule Display instance
+     */
+    function sod_get_schedule_display($view = 'week', $date = '', $service = 0, $staff = 0, $category = 0) {
+        if (!class_exists('SOD_Schedule_Display')) {
+            $file = SOD_PLUGIN_PATH . 'includes/core/main/class-sod-schedule-display.php';
+            if (file_exists($file)) {
+                require_once $file;
+            } else {
+                sod_log_error("Unable to load SOD_Schedule_Display class file", "Schedule");
+                return null;
+            }
+        }
+
+        if (empty($date)) {
+            $date = date('Y-m-d');
+        }
+
+        if (class_exists('SOD_Schedule_Display')) {
+            return new SOD_Schedule_Display($view, $date, $service, $staff, $category);
+        }
+
+        return null;
+    }
+
+    /**
+     * Schedule shortcode - UPDATED WITH FILTER HANDLER SUPPORT
+     */
+    function sod_schedule_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'view' => 'week',
+            'date' => date('Y-m-d'),
+            'product' => 0,
+            'service' => 0,
+            'staff' => 0,
+            'category' => 0
+        ), $atts);
+
+        // Get filter handler
+        $filter_handler = sod_get_filter_handler();
+
+        if (!$filter_handler) {
+            sod_log_error("Filter handler not available for shortcode", "Shortcode");
+            return '<p>Schedule not available. Please contact support.</p>';
+        }
+
+        ob_start();
+
+        // Set current context for filter handler
+        $_GET['view'] = $atts['view'];
+        $_GET['date'] = $atts['date'];
+        if ($atts['product']) $_GET['product'] = $atts['product'];
+        if ($atts['service']) $_GET['service'] = $atts['service']; // Backward compatibility
+        if ($atts['staff']) $_GET['staff'] = $atts['staff'];
+        if ($atts['category']) $_GET['category'] = $atts['category'];
+
+        // Get filters
+        $service_filter = !empty($atts['product']) ? intval($atts['product']) : intval($atts['service']);
+        $staff_filter = intval($atts['staff']);
+        $category_filter = intval($atts['category']);
+
+        // Set globals for backward compatibility
+        $GLOBALS['sod_customer_view'] = true;
+        $GLOBALS['sod_schedule_view'] = $atts['view'];
+        $GLOBALS['sod_schedule_date'] = $atts['date'];
+        $GLOBALS['sod_service_filter'] = $service_filter;
+        $GLOBALS['sod_staff_filter'] = $staff_filter;
+        $GLOBALS['sod_category_filter'] = $category_filter;
+
+        // Try to use the SOD_Schedule_Display class
+        $schedule = sod_get_schedule_display($atts['view'], $atts['date'], $service_filter, $staff_filter, $category_filter);
+
+        if ($schedule) {
+            $schedule->render();
+        } else {
+            echo '<p>Schedule not available. Please contact support.</p>';
+            sod_log_error("Schedule display could not be loaded", "Shortcode");
+        }
+
+        return ob_get_clean();
+        }
+        add_shortcode('sod_schedule', 'sod_schedule_shortcode');
+
+       /* function sod_add_rewrite_rules() {
+            // Add rewrite rule for front page with filters
+            add_rewrite_rule(
+                '^schedule/?$',
+                'index.php?pagename=schedule',
+                'top'
+            );
+
+            // Add rewrite rules for front page filtering
+            add_rewrite_rule(
+                '^/?([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)/?$',
+                'index.php?view=$matches[1]&date=$matches[2]&product=$matches[3]&staff=$matches[4]&category=$matches[5]',
+                'top'
+            );
+        }
+        add_action('init', 'sod_add_rewrite_rules');
+
+
+        // Add this to your plugin activation method:
+        function sod_flush_rewrite_rules() {
+            sod_add_rewrite_rules();
+            flush_rewrite_rules();
+        }
+        register_activation_hook(__FILE__, 'sod_flush_rewrite_rules');*/
+
+
+        // Update the existing sod_add_filter_query_vars function:
+        function sod_add_filter_query_vars($vars) {
+            $vars[] = 'view';
+            $vars[] = 'date';
+            $vars[] = 'product';
+            $vars[] = 'staff';
+            $vars[] = 'category';
+            return $vars;
+        }
+        add_filter('query_vars', 'sod_add_filter_query_vars');
+
+        // Add this function to ensure the correct template is used:
+        function sod_template_include($template) {
+            // Check if we're on the front page with schedule filters
+            if (is_front_page() && (
+                get_query_var('view') || 
+                get_query_var('date') || 
+                get_query_var('product') ||
+                get_query_var('staff') || 
+                get_query_var('category')
+            )) {
+                // Look for schedule template in theme
+                $schedule_template = locate_template(['schedule-template.php']);
+                if ($schedule_template) {
+                    return $schedule_template;
+                }
+
+                // Use plugin template as fallback
+                $plugin_template = SOD_PLUGIN_PATH . 'templates/schedule-template.php';
+                if (file_exists($plugin_template)) {
+                    return $plugin_template;
+                }
+            }
+
+            return $template;
+        }
+        add_filter('template_include', 'sod_template_include', 99);
+
+        // Add this function to generate proper .htaccess rules:
+        function sod_generate_htaccess_rules() {
+            $rules = '
+        # SOD Schedule Filter Rules
+        <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteBase /
+
+        # Handle schedule filtering on front page
+        RewriteRule ^schedule/?$ / [QSA,L]
+
+        # Handle query parameters properly
+        RewriteCond %{QUERY_STRING} ^(.*)$
+        RewriteRule ^/?$ /index.php [QSA,L]
+        </IfModule>
+        ';
+
+            return $rules;
+        }
+
+        // Update the filter handler's render_filter_form method to use the correct action URL:
+        function sod_get_filter_form_action_url() {
+            // Always use the front page URL for filtering
+            return home_url('/');
+        }
+
+        function sod_debug_filter_status() {
+            if (!defined('WP_DEBUG') || !WP_DEBUG) {
+                return;
+            }
+
+            error_log("=== SOD Filter System Debug ===");
+            error_log("Filter handler class exists: " . (class_exists('SOD_Schedule_Filter_Handler') ? 'YES' : 'NO'));
+            error_log("Filter handler file path: " . SOD_PLUGIN_PATH . 'includes/core/handlers/class-sod-schedule-filter-handler.php');
+            error_log("Filter handler file exists: " . (file_exists(SOD_PLUGIN_PATH . 'includes/core/handlers/class-sod-schedule-filter-handler.php') ? 'YES' : 'NO'));
+
+            $filter_handler = sod_get_filter_handler();
+            error_log("Filter handler instance available: " . ($filter_handler ? 'YES' : 'NO'));
+
+            if ($filter_handler) {
+                $filters = $filter_handler->get_filters();
+                error_log("Current filters: " . print_r($filters, true));
+            }
+
+            // Check query vars
+            global $wp_query;
+            $query_vars = $wp_query->query_vars;
+            $sod_vars = array_intersect_key($query_vars, array_flip(['view', 'date', 'product', 'service', 'staff', 'category']));
+            error_log("Query vars: " . print_r($sod_vars, true));
+
+            // Check if we're on front page
+            error_log("Is front page: " . (is_front_page() ? 'YES' : 'NO'));
+            error_log("Current URL: " . $_SERVER['REQUEST_URI']);
+            error_log("Query string: " . $_SERVER['QUERY_STRING']);
+        }
+        add_action('wp_footer', 'sod_debug_filter_status');
+
+        /**
+         * Handle front page schedule with filters - REQUIRED FOR FRONT PAGE FILTERING
+         */
+        function sod_handle_front_page_filters() {
+            if (is_front_page() && (
+                isset($_GET['view']) || isset($_GET['date']) || 
+                isset($_GET['product']) ||
+                isset($_GET['staff']) || isset($_GET['category'])
+            )) {
+                // Ensure the filter handler is available
+                $filter_handler = sod_get_filter_handler();
+                if ($filter_handler) {
+                    // Let the filter handler process the current request
+                    global $wp_query;
+                    $wp_query->is_home = false;
+                    $wp_query->is_front_page = true;
+                }
+            }
+        }
+        /*add_action('template_redirect', 'sod_handle_front_page_filters');*/
+
+        /**
+         * Debug function to check filter system status - DEBUGGING HELPER
+         */
+        function sod_debug_filter_system() {
+            if (!defined('WP_DEBUG') || !WP_DEBUG) {
+                return;
+            }
+
+            $status = [
+                'filter_handler_loaded' => class_exists('SOD_Schedule_Filter_Handler'),
+                'filter_handler_instance' => sod_get_filter_handler() !== null,
+                'css_exists' => file_exists(SOD_PLUGIN_PATH . 'assets/css/sod-filter.css'),
+                'js_exists' => file_exists(SOD_PLUGIN_PATH . 'assets/js/sod-schedule.js'),
+                'current_filters' => sod_get_filter_handler() ? sod_get_filter_handler()->get_filters() : 'N/A'
+            ];
+
+            sod_debug_log("Filter system status", $status);
+        }
+        add_action('wp_footer', 'sod_debug_filter_system');
+// Add debug function to schedule display
+add_action('init', function() {
+    if (isset($_GET['debug_schedule'])) {
+        // Check if schedule display can be instantiated
+        if (function_exists('sod_get_schedule_display')) {
+            $schedule = sod_get_schedule_display('week', date('Y-m-d'), 0, 0, 0);
+            if ($schedule) {
+                echo "Schedule Display object created successfully<br>";
+                echo "Class: " . get_class($schedule) . "<br>";
+            } else {
+                echo "Failed to create Schedule Display object<br>";
+            }
+        } else {
+            echo "sod_get_schedule_display function not found<br>";
+        }
+        
+        // Check database
+        global $wpdb;
+        $slots = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sod_staff_availability");
+        echo "Total availability slots: " . $slots . "<br>";
+        
+        die();
+    }
+});
+

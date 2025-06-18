@@ -1,125 +1,180 @@
 /**
- * SOD Schedule Handler
+ * SOD Schedule JavaScript (Fixed)
  * 
- * Handles schedule interactions, mobile view adjustments, and booking forms.
- * Updated with improved title display and event category detection.
+ * Handles frontend interactions for the schedule system including:
+ * - Filter form submissions
+ * - AJAX loading of schedule content
+ * - Dynamic timeslot loading
+ * - Booking form submissions
+ * 
+ * This should be saved as: assets/js/sod-schedule.js
  */
+
 jQuery(document).ready(function($) {
     'use strict';
-
-    const sodScheduleHandler = {
-        /**
-         * Initialize the schedule handler
-         */
+    
+    // Check if required data is available
+    if (typeof sodSchedule === 'undefined') {
+        console.log('SOD Schedule: sodSchedule object not found, using fallback configuration');
+        window.sodSchedule = {
+            ajax_url: ajaxurl || '/wp-admin/admin-ajax.php',
+            nonce: '',
+            base_url: window.location.origin + '/',
+            strings: {
+                loading: 'Loading...',
+                error: 'Error occurred',
+                noResults: 'No results found'
+            }
+        };
+    }
+    
+    // Initialize the schedule system
+    var SODSchedule = {
+        
         init: function() {
-            this.setupEventHandlers();
-            this.switchMobileView(); // Switch to mobile view if necessary
-            this.setupCategoryDetection(); // Set up detection for special categories
-            console.log('SOD Schedule Handler initialized');
+            this.bindEvents();
+            console.log('SOD Schedule system initialized');
         },
-
-        /**
-         * Set up all event handlers
-         */
-        setupEventHandlers: function() {
-            // View selector handling
-            $('#view').on('change', function() {
-                $(this).closest('form').submit();
-            });
-
-            // Filter form handling
-            $('#filter-form select').on('change', function() {
-                // Show loading indicator
-                $('.sod-schedule-container').addClass('loading');
-                
-                // Submit the form after a small delay to prevent rapid multiple submissions
-                setTimeout(function() {
-                    $('#filter-form').submit();
-                }, 100);
-            });
-
-            // Calendar navigation handling
-            $('.calendar-nav a.nav-button').on('click', function(e) {
-                e.preventDefault();
-                $('.sod-schedule-container').addClass('loading');
-                window.location.href = $(this).attr('href');
-            });
-
-            // Day tab switching for week view
-            $('.view-week .calendar-header .calendar-cell, .mobile-day-section h3').on('click', function(e) {
-                if ($(this).find('a.day-link').length) {
-                    e.preventDefault();
-                    $('.sod-schedule-container').addClass('loading');
-                    window.location.href = $(this).find('a.day-link').attr('href');
-                }
-            });
-
-            // Booking form submission
-            $('.booking-form').on('submit', function(e) {
-                e.preventDefault();
-                const $form = $(this);
-                
-                // Validate the form first
-                if (!sodScheduleHandler.validateBookingForm($form)) {
-                    return false;
-                }
-                
-                const formData = new FormData($form[0]);
-                sodScheduleHandler.processBookingForm(formData, $form);
-            });
-
-            // Attribute select change handler
-            $('.attribute-select').on('change', function() {
-                const $selected = $(this).find('option:selected');
-                const $form = $(this).closest('form');
-                
-                // Remove any previous dynamic fields
-                $form.find('input[name="product_id"][data-dynamic="true"]').remove();
-                $form.find('input[name="variation_id"][data-dynamic="true"]').remove();
-                $form.find('input[name="duration"]').remove();
-                
-                // Add new dynamic fields based on selection
-                if ($selected.data('duration')) {
-                    $form.append('<input type="hidden" name="duration" value="' + $selected.data('duration') + '">');
-                }
-                if ($selected.data('product-id')) {
-                    $form.find('.default-product-id').remove(); // Remove default if attribute overrides
-                    $form.append('<input type="hidden" name="product_id" value="' + $selected.data('product-id') + '" data-dynamic="true">');
-                }
-                if ($selected.data('variation-id')) {
-                    $form.append('<input type="hidden" name="variation_id" value="' + $selected.data('variation-id') + '" data-dynamic="true">');
-                }
-            });
+        
+        bindEvents: function() {
+            // Handle view selector changes
+            $(document).on('change', '#view-select', this.handleViewChange);
             
-            // When any input changes, update the hidden inputs for proper form submission
-            $('input, select').on('change keyup', function() {
-                const $form = $(this).closest('form');
-                const $inputs = $form.find('input, select').not('[type="submit"]');
+            // Handle filter form submissions
+            $(document).on('submit', '.filter-form', this.handleFilterSubmission);
+            
+            // Handle clear filters button
+            $(document).on('click', '.filter-clear', this.handleClearFilters);
+            
+            // Handle attribute selection for dynamic timeslots
+            $(document).on('change', '.attribute-select', this.handleAttributeChange);
+            
+            // Handle booking form submission
+            $(document).on('submit', '.booking-form', this.handleBookingSubmission);
+            
+            // Handle navigation clicks with AJAX (optional enhancement)
+            $(document).on('click', '.nav-button', this.handleNavigationClick);
+        },
+        
+        handleViewChange: function(e) {
+            var newView = $(this).val();
+            var currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('view', newView);
+            window.location.href = currentUrl.toString();
+        },
+        
+        handleFilterSubmission: function(e) {
+            e.preventDefault();
+            
+            var $form = $(this);
+            var formData = $form.serialize();
+            var currentUrl = new URL(window.location.href);
+            
+            // Update URL parameters
+            var params = new URLSearchParams(formData);
+            for (let [key, value] of params) {
+                if (value && value !== '0') {
+                    currentUrl.searchParams.set(key, value);
+                } else {
+                    currentUrl.searchParams.delete(key);
+                }
+            }
+            
+            // Show loading state
+            SODSchedule.showLoadingState();
+            
+            // Redirect to new URL (or use AJAX for smoother experience)
+            window.location.href = currentUrl.toString();
+        },
+        
+        handleClearFilters: function(e) {
+            e.preventDefault();
+            
+            var href = $(this).attr('href');
+            if (href) {
+                SODSchedule.showLoadingState();
+                window.location.href = href;
+            }
+        },
+        
+        handleNavigationClick: function(e) {
+            // Optional: Handle navigation with AJAX for smoother experience
+            // For now, let the default behavior work (page reload)
+            SODSchedule.showLoadingState();
+        },
+        
+        handleAttributeChange: function(e) {
+            var $select = $(this);
+            var $form = $select.closest('.booking-form');
+            var $timeslotSelect = $form.find('select[name="timeslot"]');
+            var attributeData = $select.val();
+            
+            if (!attributeData) {
+                $timeslotSelect.html('<option value="">' + (sodSchedule.strings.select_time || 'Select a time') + '</option>');
+                return;
+            }
+            
+            try {
+                var attribute = JSON.parse(attributeData);
+                var duration = $select.find(':selected').data('duration') || 60;
+                var productId = $form.find('input[name="product_id"]').val();
+                var staffId = $form.find('input[name="staff_id"]').val();
+                var date = $form.find('input[name="date"]').val();
                 
-                // Check if all required fields have values
-                let allFilled = true;
-                $inputs.filter('[required]').each(function() {
-                    if (!$(this).val()) {
-                        allFilled = false;
+                // Show loading state
+                $timeslotSelect.html('<option value="">' + (sodSchedule.strings.loading || 'Loading...') + '</option>')
+                              .prop('disabled', true);
+                
+                // Fetch available timeslots
+                $.ajax({
+                    url: sodSchedule.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'sod_get_available_timeslots',
+                        nonce: sodSchedule.nonce,
+                        product_id: productId,
+                        staff_id: staffId,
+                        date: date,
+                        duration: duration
+                    },
+                    success: function(response) {
+                        console.log('Timeslots response:', response);
+                        
+                        if (response.success && response.data.timeslots) {
+                            var options = '<option value="">' + (sodSchedule.strings.select_time || 'Select a time') + '</option>';
+                            $.each(response.data.timeslots, function(index, slot) {
+                                options += '<option value="' + slot.time + '">' + slot.timeRange + '</option>';
+                            });
+                            $timeslotSelect.html(options).prop('disabled', false);
+                        } else {
+                            $timeslotSelect.html('<option value="">No times available</option>')
+                                          .prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error loading timeslots:', error);
+                        $timeslotSelect.html('<option value="">Error loading times</option>')
+                                      .prop('disabled', false);
                     }
                 });
                 
-                // Enable or disable the submit button
-                $form.find('[type="submit"]').prop('disabled', !allFilled);
-            });
+            } catch (e) {
+                console.error('Error parsing attribute data:', e);
+                $timeslotSelect.html('<option value="">Error parsing data</option>')
+                              .prop('disabled', false);
+            }
         },
-
-        /**
-         * Validate booking form
-         * @param {jQuery} $form - The form to validate
-         * @return {boolean} - True if valid, false otherwise
-         */
-        validateBookingForm: function($form) {
-            // Check required selects
-            const $requiredSelects = $form.find('select[required]');
-            let isValid = true;
+        
+        handleBookingSubmission: function(e) {
+            e.preventDefault();
             
-            $requiredSelects.each(function() {
+            var $form = $(this);
+            var $button = $form.find('button[type="submit"]');
+            var originalText = $button.text();
+            
+            // Validate required fields
+            var isValid = true;
+            $form.find('[required]').each(function() {
                 if (!$(this).val()) {
                     isValid = false;
                     $(this).addClass('error');
@@ -129,205 +184,131 @@ jQuery(document).ready(function($) {
             });
             
             if (!isValid) {
-                alert('Please fill in all required fields.');
-                return false;
+                alert('Please fill in all required fields');
+                return;
             }
             
-            return true;
-        },
-
-        /**
-         * Switch to mobile view if on a mobile device
-         */
-        switchMobileView: function() {
-            const checkMobileView = function() {
-                if ($(window).width() <= 767 && $('#week-calendar').length > 0) {
-                    $('#week-calendar .desktop-view').hide();
-                    $('#mobile-week-calendar').show();
-                } else if ($(window).width() > 767 && $('#week-calendar').length > 0) {
-                    $('#week-calendar .desktop-view').show();
-                    $('#mobile-week-calendar').hide();
-                }
-            };
+            // Show loading state
+            $button.text('Booking...').prop('disabled', true);
             
-            // Check on init
-            checkMobileView();
-            
-            // Also attach to window resize
-            $(window).off('resize.sodSchedule').on('resize.sodSchedule', checkMobileView);
-        },
-
-        /**
-         * Set up detection for special product categories like events
-         */
-        setupCategoryDetection: function() {
-            // Detect event category products
-            $('.schedule-slot, .day-slot-item').each(function() {
-                const $slot = $(this);
-                let isEvent = false;
-                
-                // Look for event category in data attribute
-                if ($slot.data('category') === 'events' || $slot.attr('data-category') === 'events') {
-                    isEvent = true;
-                }
-                
-                // Check for hidden input indicating event category
-                if ($slot.find('input[name="event_category"][value="1"]').length > 0) {
-                    isEvent = true;
-                }
-                
-                // Look for event category in links
-                if ($slot.find('a[href*="product_cat=events"]').length > 0) {
-                    isEvent = true;
-                }
-                
-                // Apply event slot class if needed
-                if (isEvent && !$slot.hasClass('event-slot')) {
-                    $slot.addClass('event-slot');
-                }
-
-                // Check for appointment-only flag
-                if ($slot.hasClass('appointment-only') || $slot.data('appointment-only') === true || 
-                    $slot.attr('data-appointment-only') === 'true' || 
-                    $slot.find('input[name="appointment_only"][value="1"]').length > 0) {
-                    if (!$slot.hasClass('appointment-only')) {
-                        $slot.addClass('appointment-only');
-                    }
-                }
-            });
-        },
-
-        /**
-         * Process booking form
-         * @param {FormData} formData - Form data to submit
-         * @param {jQuery} $form - The form element
-         */
-        processBookingForm: function(formData, $form) {
-            console.log('Schedule: Processing booking form');
-
-            // Add submit button state
-            const $submitButton = $form.find('button[type="submit"]');
-            $submitButton.prop('disabled', true).addClass('loading').text('Processing...');
-
-            // Create response container if needed
-            if ($form.siblings('.booking-response').length === 0) {
-                $form.after('<div class="booking-response"></div>');
-            }
-            const $responseContainer = $form.siblings('.booking-response');
-            $responseContainer.html('<div class="booking-processing">Processing your booking...</div>');
-
-            // Process the form data
             $.ajax({
-                url: typeof sodBooking !== 'undefined' ? sodBooking.ajax_url : ajaxurl,
+                url: $form.attr('action'),
                 type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
+                data: $form.serialize(),
                 success: function(response) {
-                    console.log('Schedule: Booking response received', response);
-
-                    // Reset button state
-                    $submitButton.prop('disabled', false).removeClass('loading').text('BOOK');
-
-                    // Parse response if needed
-                    if (typeof response === 'string') {
-                        try {
-                            response = JSON.parse(response);
-                        } catch (e) {
-                            console.error('Failed to parse response:', e);
-                        }
-                    }
-
-                    if (response.success && response.data) {
-                        const message = response.data.message || 'Booking created successfully!';
-                        $responseContainer.html('<div class="booking-success">' + message + '</div>');
-
-                        if (response.data.requires_payment && response.data.cart_url) {
-                            console.log('Schedule: Redirecting to cart', response.data.cart_url);
-                            $responseContainer.append('<div class="redirect-message">Redirecting to cart...</div>');
-                            setTimeout(function() {
-                                window.location.href = response.data.cart_url;
-                            }, 1500);
+                    console.log('Booking response:', response);
+                    
+                    if (response.success) {
+                        alert(response.data.message || 'Booking created successfully!');
+                        if (response.data.redirect) {
+                            window.location.href = response.data.redirect;
                         } else {
-                            setTimeout(function() {
-                                location.reload();
-                            }, 2000);
+                            location.reload();
                         }
                     } else {
-                        const errorMsg = response.data && response.data.message ? 
-                            response.data.message : 'Error processing booking.';
-                        $responseContainer.html('<div class="booking-error">' + errorMsg + '</div>');
+                        alert(response.data.message || 'Booking failed. Please try again.');
+                        $button.text(originalText).prop('disabled', false);
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error('Schedule: AJAX error', status, error);
-
-                    // Reset button state
-                    $submitButton.prop('disabled', false).removeClass('loading').text('BOOK');
-
-                    // Show error message
-                    $responseContainer.html('<div class="booking-error">Server error. Please try again.</div>');
+                    console.error('Booking submission error:', error);
+                    alert('An error occurred. Please try again.');
+                    $button.text(originalText).prop('disabled', false);
                 }
             });
         },
         
-        /**
-         * Display appropriate form fields based on product type
-         * @param {jQuery} $form - The form element
-         */
-        handleProductType: function($form) {
-            // Get product type from data attribute or determine from classes
-            let productType = 'standard';
-            const $slot = $form.closest('.schedule-slot, .day-slot-item');
-            
-            if ($slot.hasClass('appointment-only')) {
-                productType = 'appointment';
-            } else if ($slot.hasClass('class-slot')) {
-                productType = 'class';
-            } else if ($slot.hasClass('package-slot')) {
-                productType = 'package';
-            } else if ($slot.hasClass('passes-slot')) {
-                productType = 'passes';
+        showLoadingState: function() {
+            var $container = $('.sod-schedule-container');
+            if ($container.length) {
+                $container.addClass('loading');
+                
+                // Remove loading state after a timeout (fallback)
+                setTimeout(function() {
+                    $container.removeClass('loading');
+                }, 30000); // 30 seconds timeout
             }
+        },
+        
+        hideLoadingState: function() {
+            $('.sod-schedule-container').removeClass('loading');
+        },
+        
+        // AJAX schedule loading (for future enhancement)
+        loadScheduleAjax: function(filters) {
+            var $container = $('.sod-schedule-container');
             
-            // Handle form display based on product type
-            switch (productType) {
-                case 'appointment':
-                    // For appointments, we need both duration and timeslot
-                    $form.find('.duration-select, select[name="timeslot"]').show();
-                    break;
-                    
-                case 'passes':
-                case 'package':
-                    // For passes and packages, we only need the attribute selection
-                    $form.find('select[name="timeslot"]').hide();
-                    break;
-                    
-                case 'class':
-                    // For classes, simplify the interface
-                    const $attributeSelect = $form.find('.attribute-select');
-                    if ($attributeSelect.find('option').length === 2) { // Just the placeholder and one real option
-                        $attributeSelect.val($attributeSelect.find('option:last-child').val()).trigger('change');
-                        $attributeSelect.hide();
+            this.showLoadingState();
+            
+            $.ajax({
+                url: sodSchedule.ajax_url,
+                type: 'GET',
+                data: $.extend({
+                    action: 'sod_load_schedule_ajax',
+                    nonce: sodSchedule.filter_nonce
+                }, filters),
+                success: function(response) {
+                    if (response.success && response.data.html) {
+                        // Update the schedule content
+                        var $newContent = $(response.data.html);
+                        $container.find('.calendar-grid, .day-view-list').replaceWith($newContent.find('.calendar-grid, .day-view-list'));
+                        
+                        // Update browser history
+                        var newUrl = new URL(window.location.href);
+                        $.each(response.data.filters, function(key, value) {
+                            if (value && value !== '0') {
+                                newUrl.searchParams.set(key, value);
+                            } else {
+                                newUrl.searchParams.delete(key);
+                            }
+                        });
+                        
+                        if (history.pushState) {
+                            history.pushState(null, null, newUrl.toString());
+                        }
+                    } else {
+                        console.error('Failed to load schedule:', response);
+                        alert(sodSchedule.strings.error || 'Error loading schedule');
                     }
-                    $form.find('select[name="timeslot"]').hide();
-                    break;
-                    
-                default:
-                    // Default handling - show everything
-                    break;
-            }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error:', error);
+                    alert(sodSchedule.strings.error || 'Error loading schedule');
+                },
+                complete: function() {
+                    SODSchedule.hideLoadingState();
+                }
+            });
         }
     };
-
-    // Initialize the schedule handler
-    sodScheduleHandler.init();
     
-    // Process each form on the page to handle product types
-    $('.booking-form').each(function() {
-        sodScheduleHandler.handleProductType($(this));
-    });
-
-    // Expose globally
-    window.sodScheduleHandler = sodScheduleHandler;
+    // Initialize the system
+    SODSchedule.init();
+    
+    // Make SODSchedule globally available for debugging
+    window.SODSchedule = SODSchedule;
+    
+    // Handle responsive calendar view switching
+    function handleResponsiveCalendar() {
+        var $desktopView = $('.calendar-wrapper.desktop-view');
+        var $mobileView = $('.calendar-wrapper.mobile-view');
+        
+        if ($(window).width() <= 768) {
+            $desktopView.hide();
+            $mobileView.show();
+        } else {
+            $desktopView.show();
+            $mobileView.hide();
+        }
+    }
+    
+    // Initial responsive check
+    handleResponsiveCalendar();
+    
+    // Handle window resize
+    $(window).on('resize', handleResponsiveCalendar);
+    
+    // Debug logging
+    console.log('SOD Schedule JavaScript loaded successfully');
+    console.log('Available data:', sodSchedule);
 });
