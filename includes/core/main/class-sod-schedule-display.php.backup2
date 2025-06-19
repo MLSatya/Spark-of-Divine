@@ -38,7 +38,7 @@ class SOD_Schedule_Display {
     /**
      * Constructor - initialize with filters
      */
-    public function __construct($view = 'week', $date_param = null, $service_filter = 0, $staff_filter = 0, $category_filter = 0) {
+    public function __construct($view = 'week', $date_param = null, $service_filter = 0, $staff_filter = 0, $category_filter = 0, $specialty_filter = 0) {
         global $wpdb;
         
         // shortcode initialization
@@ -74,6 +74,15 @@ class SOD_Schedule_Display {
         $this->service_filter = intval($service_filter);
         $this->staff_filter = intval($staff_filter);
         $this->category_filter = intval($category_filter);
+        $this->specialty_filter = intval($specialty_filter);
+
+        // Override with GET parameters if present
+        if (isset($_GET['service'])) $this->service_filter = intval($_GET['service']);
+        if (isset($_GET['staff'])) $this->staff_filter = intval($_GET['staff']);
+        if (isset($_GET['category'])) $this->category_filter = intval($_GET['category']);
+        if (isset($_GET['specialty'])) $this->specialty_filter = intval($_GET['specialty']);
+        if (isset($_GET['view'])) $this->view = sanitize_text_field($_GET['view']);
+        if (isset($_GET['date'])) $this->date_param = sanitize_text_field($_GET['date']);
         
         // Initialize everything
         $this->calculate_date_ranges();
@@ -244,9 +253,29 @@ class SOD_Schedule_Display {
         
         // Add staff filter
         if ($this->staff_filter) {
+
+        // Add specialty filter
+            $params[] = $this->specialty_filter;
+        }
             $where_one_time .= " AND sa.staff_id = %d";
+
+        // Add specialty filter
+            $params[] = $this->specialty_filter;
+        }
             $where_recurring .= " AND sa.staff_id = %d";
+
+        // Add specialty filter
+            $params[] = $this->specialty_filter;
+        }
             $params[] = $this->staff_filter;
+
+        // Add specialty filter
+            $params[] = $this->specialty_filter;
+        }
+        }
+
+        // Add specialty filter
+            $params[] = $this->specialty_filter;
         }
         
         // Add category filter
@@ -848,7 +877,7 @@ class SOD_Schedule_Display {
     public function render_filters() {
         ?>
         <div class="sod-filter-sidebar">
-            <form method="get" id="filter-form" action="<?php echo esc_url(home_url('/schedule/')); ?>" class="instant-filter">
+            <form method="get" id="filter-form" action="<?php echo esc_url(home_url('/')); ?>" class="instant-filter">
                 <h3><?php _e('Filter Schedule', 'spark-of-divine-scheduler'); ?></h3>
                 
                 <?php if (!empty($this->all_categories)): ?>
@@ -859,6 +888,27 @@ class SOD_Schedule_Display {
                         <?php foreach ($this->all_categories as $category): ?>
                             <option value="<?php echo esc_attr($category->term_id); ?>" <?php selected($this->category_filter, $category->term_id); ?>>
                                 <?php echo esc_html($category->name); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <?php endif; ?>
+                
+                <?php 
+                // Get staff specialties
+                $staff_specialties = get_terms([
+                    'taxonomy' => 'staff_specialty',
+                    'hide_empty' => false,
+                ]);
+                if (!empty($staff_specialties) && !is_wp_error($staff_specialties)): 
+                ?>
+                <div class="filter-row">
+                    <label for="specialty"><?php _e('Specialty:', 'spark-of-divine-scheduler'); ?></label>
+                    <select name="specialty" id="specialty">
+                        <option value="0"><?php _e('All Specialties', 'spark-of-divine-scheduler'); ?></option>
+                        <?php foreach ($staff_specialties as $specialty): ?>
+                            <option value="<?php echo esc_attr($specialty->term_id); ?>" <?php selected($this->specialty_filter, $specialty->term_id); ?>>
+                                <?php echo esc_html($specialty->name); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -916,7 +966,7 @@ class SOD_Schedule_Display {
     public function render_navigation() {
         ?>
         <div class="view-selector">
-            <form method="get" id="view-form" action="<?php echo esc_url(home_url('/schedule/')); ?>" class="instant-filter">
+            <form method="get" id="view-form" action="<?php echo esc_url(home_url('/')); ?>" class="instant-filter">
                 <label for="view"><?php _e('View:', 'spark-of-divine-scheduler'); ?></label>
                 <select name="view" id="view">
                     <?php foreach (['day', 'week'] as $v): ?>

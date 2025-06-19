@@ -14,8 +14,8 @@ class SOD_WooCommerce_Integration {
         add_action('profile_update', array($this, 'sync_custom_table_with_woocommerce_update'), 10, 2);
 
         // Staff-specific product integration
-        add_action('woocommerce_product_options_general_product_data', array($this, 'add_staff_service_fields'));
-        add_action('woocommerce_process_product_meta', array($this, 'save_staff_service_fields'), 20);
+        // DISABLED: add_action('woocommerce_product_options_general_product_data', array($this, 'add_staff_service_fields'));
+        // DISABLED: add_action('woocommerce_process_product_meta', array($this, 'save_staff_service_fields'), 20);
         add_action('add_meta_boxes', array($this, 'add_related_products_metabox'));
         add_action('admin_footer', array($this, 'preselect_service_for_product'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));

@@ -38,8 +38,10 @@ class SOD_Schedule_Display {
     /**
      * Constructor - initialize with filters
      */
-    public function __construct($view = 'week', $date_param = null, $service_filter = 0, $staff_filter = 0, $category_filter = 0) {
+    public function __construct($view = 'week', $date_param = null, $service_filter = 0, $staff_filter = 0, $category_filter = 0, $specialty_filter = 0) {
         global $wpdb;
+        file_put_contents("/home/dh_swjf2e/schedule.sparkofdivine.com/wp-content/sod-debug.txt", "Constructor called with service_filter=" . $service_filter . " from GET: " . print_r($_GET, true) . "\n", FILE_APPEND);
+        sod_debug_log("SOD Schedule Display: Constructor called with service_filter=" . $service_filter);
         
         // shortcode initialization
         if (class_exists('SOD_Schedule_Display')) {
@@ -74,11 +76,15 @@ class SOD_Schedule_Display {
         $this->service_filter = intval($service_filter);
         $this->staff_filter = intval($staff_filter);
         $this->category_filter = intval($category_filter);
+        $this->specialty_filter = intval($specialty_filter);
         
         // Initialize everything
         $this->calculate_date_ranges();
         $this->fetch_filters();
         $this->fetch_slots();
+        
+        // Debug: Log current filters
+        sod_debug_log("Schedule Filters - Service: {$this->service_filter}, Staff: {$this->staff_filter}, Category: {$this->category_filter}, Specialty: {$this->specialty_filter}");
         
         // Handle form submissions
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sod_filter_action'])) {
@@ -117,12 +123,13 @@ class SOD_Schedule_Display {
         $service_filter = isset($_GET['service']) ? intval($_GET['service']) : intval($atts['service']);
         $staff_filter = isset($_GET['staff']) ? intval($_GET['staff']) : intval($atts['staff']);
         $category_filter = isset($_GET['category']) ? intval($_GET['category']) : intval($atts['category']);
+        $specialty_filter = isset($_GET['specialty']) ? intval($_GET['specialty']) : intval($atts['specialty']);
 
         // Start output buffering
         ob_start();
 
         // Create and render schedule
-        $schedule = new self($view, $date_param, $service_filter, $staff_filter, $category_filter);
+        $schedule = new self($view, $date_param, $service_filter, $staff_filter, $category_filter, $specialty_filter);
         $schedule->render();
 
         // Get buffered content
@@ -177,6 +184,8 @@ class SOD_Schedule_Display {
      */
     private function fetch_filters() {
         global $wpdb;
+        file_put_contents("/home/dh_swjf2e/schedule.sparkofdivine.com/wp-content/sod-debug.txt", "Constructor called with service_filter=" . $service_filter . " from GET: " . print_r($_GET, true) . "\n", FILE_APPEND);
+        sod_debug_log("SOD Schedule Display: Constructor called with service_filter=" . $service_filter);
         
         // Get services (first try products since we've migrated to WooCommerce)
         $this->all_services = get_posts([
@@ -226,6 +235,8 @@ class SOD_Schedule_Display {
      */
     private function fetch_slots() {
         global $wpdb;
+        file_put_contents("/home/dh_swjf2e/schedule.sparkofdivine.com/wp-content/sod-debug.txt", "Constructor called with service_filter=" . $service_filter . " from GET: " . print_r($_GET, true) . "\n", FILE_APPEND);
+        sod_debug_log("SOD Schedule Display: Constructor called with service_filter=" . $service_filter);
         
         // Build query parameters
         $params = [$this->start_date, $this->end_date, $this->start_date];
@@ -255,6 +266,18 @@ class SOD_Schedule_Display {
                              LEFT JOIN {$this->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id";
             $category_where = " AND tt.term_id = %d";
             $params[] = $this->category_filter;
+        
+        // Add specialty filter
+        $specialty_join = "";
+        $specialty_where = "";
+        if ($this->specialty_filter) {
+            // Join through staff posts to get their specialties
+            $specialty_join = " LEFT JOIN {$wpdb->posts} staff_post ON st.staff_id = staff_post.ID AND staff_post.post_type = 'sod_staff'
+                               LEFT JOIN {$wpdb->term_relationships} str ON staff_post.ID = str.object_id
+                               LEFT JOIN {$wpdb->term_taxonomy} stt ON str.term_taxonomy_id = stt.term_taxonomy_id AND stt.taxonomy = 'staff_specialty'";
+            $specialty_where = " AND stt.term_id = %d";
+            $params[] = $this->specialty_filter;
+        }
         }
         
         // Query one-time slots
@@ -266,10 +289,12 @@ class SOD_Schedule_Display {
                                 LEFT JOIN {$this->staff_table} st ON sa.staff_id = st.staff_id
                                 LEFT JOIN {$this->users_table} u ON st.user_id = u.ID
                                 {$category_join}
+                                {$specialty_join}
                                 WHERE (sa.recurring_type IS NULL OR sa.recurring_type = '') 
                                 AND sa.date IS NOT NULL
                                 AND {$where_one_time}
-                                {$category_where}";
+                                {$category_where}
+                                {$specialty_where}";
         
         $one_time_slots = $wpdb->get_results($wpdb->prepare($one_time_slots_query, $params));
         
@@ -278,6 +303,7 @@ class SOD_Schedule_Display {
         if ($this->service_filter) $recurring_params[] = $this->service_filter;
         if ($this->staff_filter) $recurring_params[] = $this->staff_filter;
         if ($this->category_filter) $recurring_params[] = $this->category_filter;
+        if ($this->specialty_filter) $recurring_params[] = $this->specialty_filter;
         
         $recurring_slots_query = "SELECT sa.*, p.post_title AS product_name, p.post_excerpt AS product_description,
                                  sa.product_id, u.display_name AS staff_name, 
@@ -287,16 +313,19 @@ class SOD_Schedule_Display {
                                  LEFT JOIN {$this->staff_table} st ON sa.staff_id = st.staff_id
                                  LEFT JOIN {$this->users_table} u ON st.user_id = u.ID
                                  {$category_join}
+                                {$specialty_join}
                                  WHERE sa.recurring_type IS NOT NULL 
                                  AND sa.recurring_type != '' 
                                  AND sa.day_of_week IS NOT NULL
                                  AND {$where_recurring}
-                                 {$category_where}";
+                                 {$category_where}
+                                {$specialty_where}";
         
         $recurring_slots = $wpdb->get_results($wpdb->prepare($recurring_slots_query, $recurring_params));
         
         // Combine and store all slots
         $this->slots = array_merge($one_time_slots, $recurring_slots);
+        sod_debug_log("Total slots after merge: " . count($this->slots) . " (One-time: " . count($one_time_slots) . ", Recurring: " . count($recurring_slots) . ")");
         
         // Organize slots by date
         $this->organize_slots_by_date();
@@ -603,6 +632,8 @@ class SOD_Schedule_Display {
      */
     public function render_booking_form($slot, $date_key) {
         global $wpdb;
+        file_put_contents("/home/dh_swjf2e/schedule.sparkofdivine.com/wp-content/sod-debug.txt", "Constructor called with service_filter=" . $service_filter . " from GET: " . print_r($_GET, true) . "\n", FILE_APPEND);
+        sod_debug_log("SOD Schedule Display: Constructor called with service_filter=" . $service_filter);
 
         // Get product ID - make sure it's available
           $product_id = $slot->product_id;
@@ -848,7 +879,7 @@ class SOD_Schedule_Display {
     public function render_filters() {
         ?>
         <div class="sod-filter-sidebar">
-            <form method="get" id="filter-form" action="<?php echo esc_url(home_url('/schedule/')); ?>" class="instant-filter">
+            <form method="get" id="filter-form" action="<?php echo esc_url(home_url('/')); ?>" class="instant-filter sod-filter-form">
                 <h3><?php _e('Filter Schedule', 'spark-of-divine-scheduler'); ?></h3>
                 
                 <?php if (!empty($this->all_categories)): ?>
@@ -859,6 +890,27 @@ class SOD_Schedule_Display {
                         <?php foreach ($this->all_categories as $category): ?>
                             <option value="<?php echo esc_attr($category->term_id); ?>" <?php selected($this->category_filter, $category->term_id); ?>>
                                 <?php echo esc_html($category->name); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <?php endif; ?>
+                
+                <?php 
+                // Get staff specialties
+                $staff_specialties = get_terms([
+                    'taxonomy' => 'staff_specialty',
+                    'hide_empty' => false,
+                ]);
+                if (!empty($staff_specialties) && !is_wp_error($staff_specialties)): 
+                ?>
+                <div class="filter-row">
+                    <label for="specialty"><?php _e('Specialty:', 'spark-of-divine-scheduler'); ?></label>
+                    <select name="specialty" id="specialty">
+                        <option value="0"><?php _e('All Specialties', 'spark-of-divine-scheduler'); ?></option>
+                        <?php foreach ($staff_specialties as $specialty): ?>
+                            <option value="<?php echo esc_attr($specialty->term_id); ?>" <?php selected($this->specialty_filter, $specialty->term_id); ?>>
+                                <?php echo esc_html($specialty->name); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -899,11 +951,11 @@ class SOD_Schedule_Display {
                     <button type="submit" class="button"><?php _e('Apply Filters', 'spark-of-divine-scheduler'); ?></button>
                 </noscript>
                 
-                <?php if ($this->service_filter || $this->staff_filter || $this->category_filter): ?>
+                <?php if ($this->service_filter || $this->staff_filter || $this->category_filter || $this->specialty_filter): ?>
                     <a href="<?php echo esc_url(add_query_arg([
                         'view' => $this->view,
                         'date' => $this->date_param
-                    ])); ?>" class="clear-filters"><?php _e('Clear Filters', 'spark-of-divine-scheduler'); ?></a>
+                    ], home_url("/"))); ?>" class="clear-filters"><?php _e('Clear Filters', 'spark-of-divine-scheduler'); ?></a>
                 <?php endif; ?>
             </form>
         </div>
@@ -916,7 +968,7 @@ class SOD_Schedule_Display {
     public function render_navigation() {
         ?>
         <div class="view-selector">
-            <form method="get" id="view-form" action="<?php echo esc_url(home_url('/schedule/')); ?>" class="instant-filter">
+            <form method="get" id="view-form" action="<?php echo esc_url(home_url('/')); ?>" class="instant-filter sod-filter-form">
                 <label for="view"><?php _e('View:', 'spark-of-divine-scheduler'); ?></label>
                 <select name="view" id="view">
                     <?php foreach (['day', 'week'] as $v): ?>
@@ -934,6 +986,9 @@ class SOD_Schedule_Display {
                 <?php endif; ?>
                 <?php if ($this->category_filter): ?>
                     <input type="hidden" name="category" value="<?php echo esc_attr($this->category_filter); ?>">
+                <?php if ($this->specialty_filter): ?>
+                    <input type="hidden" name="specialty" value="<?php echo esc_attr($this->specialty_filter); ?>">
+                <?php endif; ?>
                 <?php endif; ?>
                 <noscript>
                     <button type="submit" class="button"><?php _e('Go', 'spark-of-divine-scheduler'); ?></button>
@@ -948,7 +1003,8 @@ class SOD_Schedule_Display {
                 'service' => $this->service_filter, 
                 'staff' => $this->staff_filter, 
                 'category' => $this->category_filter
-            ])); ?>" class="nav-button">← <?php _e('Previous', 'spark-of-divine-scheduler'); ?></a>
+            <a href="<?php echo esc_url($this->build_filter_url(["date" => $this->prev_date])); ?>" class="nav-button">← <?php _e("Previous", "spark-of-divine-scheduler"); ?></a>
+            ], home_url("/"))); ?>" class="nav-button">← <?php _e('Previous', 'spark-of-divine-scheduler'); ?></a>
             
             <h2>
                 <?php 
@@ -975,7 +1031,8 @@ class SOD_Schedule_Display {
                 'service' => $this->service_filter, 
                 'staff' => $this->staff_filter, 
                 'category' => $this->category_filter
-            ])); ?>" class="nav-button"><?php _e('Next', 'spark-of-divine-scheduler'); ?> →</a>
+            <a href="<?php echo esc_url($this->build_filter_url(["date" => $this->next_date])); ?>" class="nav-button"><?php _e("Next", "spark-of-divine-scheduler"); ?> →</a>
+            ], home_url("/"))); ?>" class="nav-button"><?php _e('Next', 'spark-of-divine-scheduler'); ?> →</a>
         </div>
         <?php
     }
@@ -986,6 +1043,27 @@ class SOD_Schedule_Display {
     public function render_week_view() {
         ?>
         <div class="calendar-grid view-week" id="week-calendar">
+    
+    /**
+     * Build URL with only non-zero filters
+     */
+    private function build_filter_url($params = []) {
+        $defaults = [
+            'view' => $this->view,
+            'date' => $this->date_param
+        ];
+        
+        // Only add non-zero filters
+        if ($this->service_filter) $defaults['service'] = $this->service_filter;
+        if ($this->staff_filter) $defaults['staff'] = $this->staff_filter;
+        if ($this->category_filter) $defaults['category'] = $this->category_filter;
+        if ($this->specialty_filter) $defaults['specialty'] = $this->specialty_filter;
+        
+        // Merge with any additional params
+        $query_args = array_merge($defaults, $params);
+        
+        return add_query_arg($query_args, home_url('/'));
+    }
             <div class="calendar-wrapper desktop-view">
                 <div class="calendar-header">
                     <?php 

@@ -67,6 +67,7 @@ class SOD_Schedule_Filter_Handler {
             'service' => intval($this->get_filter_value('service', 0)), // Backward compatibility
             'staff' => intval($this->get_filter_value('staff', 0)),
             'category' => intval($this->get_filter_value('category', 0))
+            ,'specialty' => intval($this->get_filter_value('specialty', 0))
         ];
         
         // Handle service/product interchangeably for backward compatibility
@@ -145,7 +146,7 @@ class SOD_Schedule_Filter_Handler {
         // Update filters from POST data
         if (isset($_POST['filters']) && is_array($_POST['filters'])) {
             foreach ($_POST['filters'] as $key => $value) {
-                if (in_array($key, ['view', 'date', 'product', 'service', 'staff', 'category'])) {
+                if (in_array($key, ["view", "date", "product", "service", "staff", "category", "specialty"])) {
                     $this->set_filter($key, sanitize_text_field($value));
                 }
             }

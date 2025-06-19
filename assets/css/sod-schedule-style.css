@@ -676,3 +676,75 @@ select:focus {
         padding-right: 28px;
     }
 }
+/* Event Styling - Neutral color scheme */
+.schedule-slot.event-slot {
+    background-color: #f5f5f5;  /* Light gray background */
+    border: 1px solid #d9d9d9;
+}
+
+.schedule-slot.event-slot .slot-info {
+    background-color: #e8e8e8;
+    padding: 8px;
+    margin: -5px -5px 5px -5px;
+}
+
+.schedule-slot.event-slot .slot-title {
+    color: #4a4a4a;  /* Dark gray text */
+    font-weight: bold;
+}
+
+.schedule-slot.event-slot .book-now {
+    background-color: #8c8c8c;  /* Gray button */
+    color: #ffffff;
+    border: 1px solid #8c8c8c;
+}
+
+.schedule-slot.event-slot .book-now:hover {
+    background-color: #6d6d6d;
+    border-color: #6d6d6d;
+}
+
+/* Keep the APPT ONLY slots as they are (salmon/orange) */
+.schedule-slot.appointment-only {
+    background-color: #ffe6d9;
+    border: 1px solid #ffcbb3;
+}
+
+/* Service slots - default beige/cream */
+.schedule-slot:not(.event-slot):not(.appointment-only):not(.class-slot) {
+    background-color: #faf8f5;
+    border: 1px solid #e6ddd4;
+}
+
+/* Classes - slightly darker beige */
+.schedule-slot.class-slot {
+    background-color: #f5f0e8;
+    border: 1px solid #e0d5c7;
+}
+
+.schedule-slot.class-slot .slot-info {
+    background-color: #ede5d9;
+    padding: 8px;
+    margin: -5px -5px 5px -5px;
+}
+
+/* Update the legend colors */
+.filter-legend-color.event {
+    background-color: #f5f5f5;
+    border-color: #d9d9d9;
+}
+
+.filter-legend-color.service {
+    background-color: #faf8f5;
+    border-color: #e6ddd4;
+}
+
+.filter-legend-color.class {
+    background-color: #f5f0e8;
+    border-color: #e0d5c7;
+}
+
+.filter-legend-color.appointment {
+    background-color: #ffe6d9;
+    border-color: #ffcbb3;
+}

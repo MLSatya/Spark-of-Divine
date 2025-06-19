@@ -4,12 +4,21 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Class SOD_Service_Product_Integration
+/**
+ * LEGACY CODE - DISABLED
+ * 
+ * This file contains legacy booking options (passes, packages) functionality.
+ * Currently disabled as durations are managed through WooCommerce product attributes.
+ * Kept for potential future use.
+ * 
+ * To re-enable: Update the require_once in the main plugin file.
+ */
+ * Class SOD_Booking_Options_Legacy
  * 
  * Manages product variations and attributes for the booking system.
  * Removed all service ID dependencies.
  */
-class SOD_Service_Product_Integration {
+class SOD_Booking_Options_Legacy {
     
     /**
      * Constructor.

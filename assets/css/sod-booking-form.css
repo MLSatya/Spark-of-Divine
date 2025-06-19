@@ -195,3 +195,28 @@
 .modal-content::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+/* Payment Split Display */
+.sod-deposit-info {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f0f8ff;
+    border: 1px solid #b0d4ff;
+    border-radius: 4px;
+}
+
+.payment-split-info p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.deposit-amount {
+    color: #0066cc;
+}
+
+.balance-amount {
+    color: #666;
+}
+
+.payment-split-info strong {
+    font-size: 16px;
+}

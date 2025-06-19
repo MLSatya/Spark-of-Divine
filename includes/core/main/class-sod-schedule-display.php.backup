@@ -20,7 +20,6 @@ class SOD_Schedule_Display {
     private $service_filter;
     private $staff_filter;
     private $category_filter;
-    private $specialty_filter;
     
     // Date ranges
     private $start_date;
