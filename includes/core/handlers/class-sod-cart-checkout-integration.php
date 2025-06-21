@@ -133,10 +133,11 @@ class SOD_Cart_Checkout_Integration {
         if (is_user_logged_in()) {
             return;
         }
-        
+
         // Get cart template
-        include SOD_PLUGIN_PATH . 'templates/cart/cart-fields.php';
+        include SOD_PLUGIN_PATH . 'includes/core/templates/cart/cart-fields.php';
     }
+
 
     /**
      * Add "Return to Shop" button to the cart
@@ -146,17 +147,10 @@ class SOD_Cart_Checkout_Integration {
         if (!is_cart()) {
             return;
         }
-        
-        // Get shop page URL
-        $shop_page_url = get_permalink(wc_get_page_id('shop'));
-        if (!$shop_page_url) {
-            $shop_page_url = home_url('/schedule/');
-        }
-        
+
         // Include template
         include SOD_PLUGIN_PATH . 'templates/cart/return-to-shop.php';
     }
-
     /**
      * Save cart contact information via AJAX
      */
@@ -166,8 +160,14 @@ class SOD_Cart_Checkout_Integration {
         if (isset($_POST['email']) && isset($_POST['phone'])) {
             $email = sanitize_email($_POST['email']);
             $phone = sanitize_text_field($_POST['phone']);
+            $first_name = isset($_POST['first_name']) ? sanitize_text_field($_POST['first_name']) : '';
+            $last_name = isset($_POST['last_name']) ? sanitize_text_field($_POST['last_name']) : '';
+            
             WC()->session->set('sod_cart_email', $email);
             WC()->session->set('sod_cart_phone', $phone);
+            WC()->session->set('sod_cart_first_name', $first_name);
+            WC()->session->set('sod_cart_last_name', $last_name);
+            
             wp_send_json_success(['message' => 'Contact info saved']);
         } else {
             wp_send_json_error(['message' => 'Missing contact information']);
@@ -182,14 +182,14 @@ class SOD_Cart_Checkout_Integration {
         if (!is_checkout()) {
             return;
         }
-        
+
         // Skip if user is logged in
         if (is_user_logged_in()) {
             return;
         }
-        
+
         // Include template
-        include SOD_PLUGIN_PATH . 'templates/checkout/checkout-fields.php';
+        include SOD_PLUGIN_PATH . 'includes/core/templates/checkout/checkout-fields.php';
     }
 
     /**

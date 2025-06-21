@@ -1890,14 +1890,14 @@ class SOD_Staff_Dashboard {
             'sod-staff-dashboard-style', 
             SOD_PLUGIN_URL . 'assets/css/staff-dashboard.css', 
             [], 
-            SOD_VERSION
+            SOD_PLUGIN_VERSION
         );
         
         wp_enqueue_script(
             'sod-staff-dashboard-script',
             SOD_PLUGIN_URL . 'assets/js/staff-dashboard.js',
             ['jquery'],
-            SOD_VERSION,
+            SOD_PLUGIN_VERSION,
             true
         );
         

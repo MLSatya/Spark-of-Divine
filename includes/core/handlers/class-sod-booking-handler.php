@@ -218,6 +218,8 @@ class SOD_Booking_Handler {
                 'requires_payment' => true,
                 'booking_id' => $booking_id,
                 'cart_url' => wc_get_cart_url(),
+                'redirect' => wc_get_cart_url(),
+                'redirect' => wc_get_cart_url(),
                 'message' => __('Booking added to cart! Payment is required—continue shopping or proceed to checkout.', 'spark-of-divine-scheduler')
             ];
 
@@ -1392,3 +1394,36 @@ class SOD_Booking_Handler {
 
 // Initialize singleton instance
 SOD_Booking_Handler::getInstance();
+// Temporary debug function
+add_action('wp_ajax_sod_debug_booking', function() {
+    error_log('Debug: Booking AJAX called');
+    error_log('POST data: ' . print_r($_POST, true));
+    
+        // Check if user is guest and needs contact info
+        $needs_contact_info = false;
+        $redirect_url = wc_get_cart_url();
+        
+        if (!is_user_logged_in() && function_exists('WC') && WC()->session) {
+            // Check if contact info is already in session
+            $has_contact = WC()->session->get('sod_cart_first_name') && 
+                          WC()->session->get('sod_cart_last_name') && 
+                          WC()->session->get('sod_cart_email') && 
+                          WC()->session->get('sod_cart_phone');
+            
+            if (!$has_contact) {
+                $needs_contact_info = true;
+                // For now, redirect to cart where contact fields should appear
+                $redirect_url = wc_get_cart_url();
+            }
+        }
+        
+        wp_send_json_success([
+            'message' => __('Booking confirmed! Redirecting...', 'spark-of-divine-scheduler'),
+            'booking_id' => $booking_id,
+            'requires_payment' => true,
+            'needs_contact_info' => $needs_contact_info,
+            'cart_url' => $redirect_url,
+            'redirect' => $redirect_url
+        ]);
+});
+add_action('wp_ajax_nopriv_sod_debug_booking', 'sod_debug_booking');

@@ -1,0 +1,71 @@
+/* SOD Cart Checkout Styles */
+.sod-cart-contact-info {
+    background: #f7f7f7;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.sod-cart-contact-info h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.sod-cart-contact-info .form-row {
+    margin-bottom: 15px;
+}
+
+.sod-cart-contact-info label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.sod-cart-contact-info input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.sod-cart-contact-info input.error {
+    border-color: #d00;
+}
+
+.sod-cart-contact-info .required {
+    color: #d00;
+}
+
+.sod-cart-contact-saved {
+    margin: 20px 0;
+}
+
+
+/* NOTE: Custom rule added to fix checkbox alignment. This will be overwritten on plugin update. */
+.sod-checkbox-field label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+
+/* STRONGER OVERRIDE: Forcing checkbox alignment. */
+.sod-cart-contact-info .sod-checkbox-field label {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+}
+
+
+/* Fix for cart page checkbox and label alignment */
+.sod-checkbox-field label {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+}
+
+.sod-checkbox-field input[type="checkbox"] {
+    margin-right: 8px !important; /* Adds space between box and text */
+}
+

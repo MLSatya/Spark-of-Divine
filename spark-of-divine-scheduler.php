@@ -260,6 +260,11 @@ class SOD_Plugin_Initializer {
                 'class' => 'SOD_Cart_Handler',
                 'method' => null,
                 'global' => 'sod_cart_handler'
+            ],
+            'class-sod-payment-split-handler.php' => [
+                'class' => 'SOD_Payment_Split_Handler',
+                'method' => 'getInstance',
+                'global' => 'payment_split_handler'
             ]
         ];
 
@@ -316,6 +321,15 @@ class SOD_Plugin_Initializer {
             $this->components['woocommerce_integration'] = new SOD_WooCommerce_Integration($this->components['db_access']);
             $GLOBALS['sod_woocommerce_integration'] = $this->components['woocommerce_integration'];
             sod_debug_log("WooCommerce integration loaded", "Plugin");
+        }
+
+        // Cart Checkout Integration
+        $cart_file = SOD_PLUGIN_PATH . 'includes/core/handlers/class-sod-cart-checkout-integration.php';
+        if (file_exists($cart_file)) {
+            require_once $cart_file;
+            $this->components['cart_checkout_integration'] = SOD_Cart_Checkout_Integration::get_instance($this->components['db_access']);
+            $GLOBALS['sod_cart_checkout_integration'] = $this->components['cart_checkout_integration'];
+            sod_debug_log("Cart checkout integration loaded", "Plugin");
         }
     }
 

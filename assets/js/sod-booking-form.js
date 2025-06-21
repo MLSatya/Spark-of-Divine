@@ -1,10 +1,10 @@
 /**
  * Spark of Divine Scheduler - Fixed Booking Form Handler
- * 
+ *
  * This file contains fixes for the booking functionality:
  * 1. Fix the datepicker dependency issue
  * 2. Add better error handling for AJAX requests
- * 3. Updated to use sod_process_booking endpoint
+ * 3. Updated to use sod_submit_booking endpoint and handle redirect
  * 4. Fixed staff_id handling
  */
 
@@ -209,7 +209,7 @@ jQuery(document).ready(function($) {
             const timeslot = $form.find('select[name="timeslot"]').val() || $form.find('input[name="timeslot"]').val();
 
             // Add required fields
-            formData.append('action', 'sod_process_booking');
+            formData.append('action', 'sod_submit_booking');
             formData.append('product_id', selectedData.productId);
             formData.append('variation_id', selectedData.variationId || '');
             formData.append('duration', selectedData.duration);
@@ -221,7 +221,7 @@ jQuery(document).ready(function($) {
 
             // Log what we're sending for debugging
             console.log('Submitting booking with data:', {
-                action: 'sod_process_booking',
+                action: 'sod_submit_booking', // Corrected this log
                 product_id: selectedData.productId,
                 variation_id: selectedData.variationId,
                 duration: selectedData.duration,
@@ -240,21 +240,29 @@ jQuery(document).ready(function($) {
                 contentType: false,
                 success: function(response) {
                     console.log('Booking response:', response);
-                    
                     $form.removeClass('active');
-                    
-                    if (response.success) {
-                        $form.siblings('.booking-response').html('<div class="booking-success">' + response.data.message + '</div>');
+
+                    if (response.success && response.data) {
+                        // Display a success message before redirecting
+                        const successMessage = response.data.message || 'Booking successful! Redirecting...';
+                        $form.siblings('.booking-response').html('<div class="booking-success">' + successMessage + '</div>');
+
+                        // --- START: CORRECTED REDIRECT LOGIC ---
+                        const redirectUrl = response.data.cart_url || response.data.redirect;
                         
-                        if (response.data.requires_payment && response.data.cart_url) {
-                            setTimeout(function() {
-                                window.location.href = response.data.cart_url;
-                            }, 1500);
-                        }
+                        setTimeout(function() {
+                            if (redirectUrl) {
+                                window.location.href = redirectUrl;
+                            } else {
+                                // As a fallback, redirect to the main cart page
+                                window.location.href = '/cart/'; 
+                            }
+                        }, 500); // 500ms delay to allow user to see message
+                        // --- END: CORRECTED REDIRECT LOGIC ---
+
                     } else {
-                        $form.siblings('.booking-response').html('<div class="booking-error">' + 
-                            (response.data && response.data.message ? response.data.message : 'Error processing booking.') + 
-                            '</div>');
+                        const errorMessage = response.data && response.data.message ? response.data.message : 'Error processing booking.';
+                        $form.siblings('.booking-response').html('<div class="booking-error">' + errorMessage + '</div>');
                     }
                 },
                 error: function(xhr, status, error) {
